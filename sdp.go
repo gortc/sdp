@@ -165,7 +165,7 @@ func (s Session) AppendTo(b []byte) []byte {
 }
 
 func (s Session) append(t Type, v []byte) Session {
-	line := Line {
+	line := Line{
 		Type: t,
 	}
 	// trying to reuse some memory
@@ -175,6 +175,10 @@ func (s Session) append(t Type, v []byte) Session {
 	}
 	line.Value = append(line.Value, v...)
 	return append(s, line)
+}
+
+func (s Session) appendString(t Type, v string) Session {
+	return s.append(t, []byte(v))
 }
 
 func blankSlice(v []byte) bool {

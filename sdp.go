@@ -10,6 +10,7 @@ import (
 
 const (
 	lineDelimiter = '='
+	newLine       = '\n'
 )
 
 // Line of SDP session.
@@ -152,8 +153,96 @@ type Session []Line
 
 // AppendTo appends all session lines to b and returns b.
 func (s Session) AppendTo(b []byte) []byte {
-	for _, l := range s {
+	last := len(s) - 1
+	for i, l := range s {
 		b = l.AppendTo(b)
+		if i < last {
+			// not adding newline on end
+			b = appendRune(b, newLine)
+		}
 	}
 	return b
+}
+
+func blankSlice(v []byte) bool {
+	if v == nil {
+		return true
+	}
+	if len(v) == 0 {
+		return true
+	}
+	return false
+}
+
+// sliceScanner is custom in-memory scanner for slice
+// that will scan all non-whitespace lines.
+type sliceScanner struct {
+	pos  int
+	end  int
+	v    []byte
+	line []byte
+}
+
+func newScanner(v []byte) sliceScanner {
+	return sliceScanner{
+		v: v,
+	}
+}
+
+func (s sliceScanner) Line() []byte {
+	return s.line
+}
+
+func (s *sliceScanner) Scan() bool {
+	// CPU: optimizations are possible.
+	// TODO: handle /r
+	for {
+		s.pos = s.end
+		if s.pos >= len(s.v) {
+			// EOF
+			s.line = s.line[:0]
+			s.v = s.v[:0]
+			return false
+		}
+		newLinePos := bytes.IndexRune(s.v[s.pos:], newLine)
+		s.end = s.pos + newLinePos + 1
+		if newLinePos < 0 {
+			// next line symbol not found
+			s.end = len(s.v)
+		}
+		s.line = bytes.TrimSpace(s.v[s.pos:s.end])
+		if blankSlice(s.line) {
+			continue
+		}
+		return true
+	}
+}
+
+// DecodeSession decodes Session from b, returning error if any. Blank
+// lines and leading/trialing whitespace are ignored.
+//
+// If s is passed, it will be reused with its lines.
+// It is safe to corrupt b.
+func DecodeSession(b []byte, s Session) (Session, error) {
+	var (
+		line Line
+		err  error
+	)
+	scanner := newScanner(b)
+	for scanner.Scan() {
+		// trying to reuse some memory
+		l := len(s)
+		if cap(s) > l+1 {
+			// picking element from s that is not in
+			// slice bounds, but in underlying array
+			// and reusing it byte slice
+			line.Value = s[:l+1][l].Value[:0]
+		}
+		if err = line.Decode(scanner.Line()); err != nil {
+			break
+		}
+		s = append(s, line)
+		line.Value = nil // not corrupting.
+	}
+	return s, err
 }

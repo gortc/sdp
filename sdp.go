@@ -3,10 +3,28 @@ package sdp
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"unicode/utf8"
+
+	"github.com/pkg/errors"
 )
+
+// DecodeError wraps Reason of error and occurance Place.
+type DecodeError struct {
+	Reason string
+	Place  string
+}
+
+func (e DecodeError) Error() string {
+	return fmt.Sprintf("DecodeError in %s: %s", e.Place, e.Reason)
+}
+
+func newDecodeError(place, reason string) DecodeError {
+	return DecodeError{
+		Reason: reason,
+		Place:  place,
+	}
+}
 
 const (
 	lineDelimiter = '='
@@ -51,12 +69,17 @@ func (l Line) Equal(b Line) bool {
 func (l *Line) Decode(b []byte) error {
 	delimiter := bytes.IndexRune(b, lineDelimiter)
 	if delimiter == -1 {
-		// TODO: replace with appropriate error
-		return errors.New("no delim")
+		reason := `delimiter "=" not found`
+		err := newDecodeError("line", reason)
+		return errors.Wrap(err, "failed to decode")
 	}
 	if len(b) < (delimiter + 1) {
-		// TODO: replace with appropriate error
-		return errors.New("too small")
+		reason := fmt.Sprintf(
+			"len(b) %d < (%d + 1), no value found after delimiter",
+			len(b), delimiter,
+		)
+		err := newDecodeError("line", reason)
+		return errors.Wrap(err, "failed to decode")
 	}
 	r, _ := utf8.DecodeRune(b[:delimiter])
 	l.Type = Type(r)

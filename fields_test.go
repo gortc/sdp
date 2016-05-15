@@ -13,6 +13,8 @@ func shouldDecode(tb testing.TB, s Session, name string) {
 	if !byteSliceEqual(tData, buf) {
 		fmt.Println(tData)
 		fmt.Println(buf)
+		fmt.Println(string(tData))
+		fmt.Println(string(buf))
 		tb.Errorf("not equal")
 	}
 }
@@ -32,7 +34,15 @@ func TestSession_AddPhoneEmail(t *testing.T) {
 }
 
 func TestSession_AddConnectionDataIP(t *testing.T) {
-	s := new(Session).AddConnectionDataIP(net.ParseIP("ff15::103"))
-	s = s.AddConnectionData("IN", "IP4", "224.2.36.42/127")
+	s := new(Session).
+		AddConnectionDataIP(net.ParseIP("ff15::103")).
+		AddConnectionData(ConnectionData{
+		IP: net.ParseIP("224.2.36.42"),
+		TTL: 127}).
+		AddConnectionData(ConnectionData{
+		IP: net.ParseIP("214.6.36.42"),
+		TTL: 95,
+		Addresses: 4,
+	})
 	shouldDecodeExpS(t, s, "ip")
 }

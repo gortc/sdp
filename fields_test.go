@@ -37,12 +37,28 @@ func TestSession_AddConnectionDataIP(t *testing.T) {
 	s := new(Session).
 		AddConnectionDataIP(net.ParseIP("ff15::103")).
 		AddConnectionData(ConnectionData{
-		IP: net.ParseIP("224.2.36.42"),
-		TTL: 127}).
+			IP:  net.ParseIP("224.2.36.42"),
+			TTL: 127}).
 		AddConnectionData(ConnectionData{
-		IP: net.ParseIP("214.6.36.42"),
-		TTL: 95,
-		Addresses: 4,
-	})
+			IP:        net.ParseIP("214.6.36.42"),
+			TTL:       95,
+			Addresses: 4,
+		})
 	shouldDecodeExpS(t, s, "ip")
+}
+
+func TestSession_AddOrigin(t *testing.T) {
+	s := new(Session).AddOrigin(Origin{
+		Username:       "jdoe",
+		SessionID:      2890844526,
+		SessionVersion: 2890842807,
+		IP:             net.ParseIP("10.47.16.5"),
+	})
+	s = s.AddOrigin(Origin{
+		Username:       "jdoe",
+		SessionID:      2890844527,
+		SessionVersion: 2890842807,
+		IP:             net.ParseIP("FF15::103"),
+	})
+	shouldDecodeExpS(t, s, "origin")
 }

@@ -1,4 +1,5 @@
 # sdp
-[RFC 4566](https://www.rfc-editor.org/rfc/rfc4566.txt) SDP: Session Description Protocol in go
+[RFC 4566](https://tools.ietf.org/html/rfc4566)
+SDP: Session Description Protocol in go.
 
 In active development.

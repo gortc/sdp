@@ -82,7 +82,7 @@ func TestSession_AddTiming(t *testing.T) {
 
 func TestSession_AddAttribute(t *testing.T) {
 	s := new(Session).
-		AddAttribute("recvonly").
+		AddFlag("recvonly").
 		AddAttribute("orient", "landscape")
 	shouldDecodeExpS(t, s, "attributes")
 }

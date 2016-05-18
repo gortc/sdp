@@ -206,16 +206,20 @@ func (s Session) AddTiming(start, end time.Time) Session {
 	return s.append(TypeTiming, v)
 }
 
-// AddAttribute appends Attribute field to Session. If no values specified,
-// "a=<flag>" form is used, else first value is picked from values as <value>
-// and form "a=<attribute>:<value>" is used.
-func (s Session) AddAttribute(attribute string, values ...string) Session {
+// AddAttribute appends Attribute field to Session in a=<attribute>:<value>"
+// form.
+func (s Session) AddAttribute(attribute string, value string) Session {
 	v := make([]byte, 0, 512)
 	v = append(v, attribute...)
-	if len(values) > 0 {
-		v = appendRune(v, attributesDelimiter)
-		v = append(v, values[0]...)
-	}
+	v = appendRune(v, attributesDelimiter)
+	v = append(v, value...)
+	return s.append(TypeAttribute, v)
+}
+
+// AddFlag appends Attribute field to Session in "a=<flag>" form.
+func (s Session) AddFlag(attribute string) Session {
+	v := make([]byte, 0, 256)
+	v = append(v, attribute...)
 	return s.append(TypeAttribute, v)
 }
 

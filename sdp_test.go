@@ -33,7 +33,7 @@ func loadData(tb testing.TB, name string) []byte {
 func BenchmarkAppendRune(b *testing.B) {
 	b.ReportAllocs()
 	buf := make([]byte, 8)
-	r := rune(TypeAttributes)
+	r := rune(TypeAttribute)
 	for i := 0; i < b.N; i++ {
 		buf = appendRune(buf, r)
 		buf = buf[:0]
@@ -60,7 +60,7 @@ func TestLineDecode(t *testing.T) {
 	}{
 		{
 			"a=value",
-			Line{TypeAttributes, []byte("value")},
+			Line{TypeAttribute, []byte("value")},
 		},
 		{
 			"б=значение",                  // unknown attribute char
@@ -128,8 +128,8 @@ func TestType_String(t *testing.T) {
 		TypeRepeatTimes,
 		TypeTimeZones,
 		TypeEncryptionKeys,
-		TypeAttributes,
-		TypeMediaDescriptions,
+		TypeAttribute,
+		TypeMediaDescription,
 	}
 	for _, tt := range v {
 		if len(tt.String()) < 2 {
@@ -150,7 +150,7 @@ func TestLine_String(t *testing.T) {
 		expected string
 	}{
 		{
-			Line{TypeAttributes, []byte("value")},
+			Line{TypeAttribute, []byte("value")},
 			"attributes: value",
 		},
 		{

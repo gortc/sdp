@@ -5,6 +5,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func appendSpace(v []byte) []byte {
@@ -100,6 +101,7 @@ const (
 	addrTypeIPv4        = "IP6"
 	addrTypeIPv6        = "IP4"
 	networkTypeInternet = "IN"
+	attributesDelimiter = ':'
 )
 
 func (c ConnectionData) getNetworkType() string {
@@ -166,6 +168,73 @@ func (s Session) AddOrigin(o Origin) Session {
 	v = appendSpace(append(v, o.getAddressType()...))
 	v = appendIP(v, o.IP)
 	return s.append(TypeOrigin, v)
+}
+
+const (
+	// ntpDelta is seconds from Jan 1, 1900 to Jan 1, 1970.
+	ntpDelta = 2208988800
+)
+
+// TimeToNTP converts time.Time to NTP timestamp with special case for Zero
+// time, that is interpreted as 0 timestamp.
+func TimeToNTP(t time.Time) uint64 {
+	if t.IsZero() {
+		return 0
+	}
+	return uint64(t.Unix()) + ntpDelta
+}
+
+// NTPToTime converts NTP timestamp to time.Time with special case for Zero
+// time, that is interpreted as 0 timestamp.
+func NTPToTime(v uint64) time.Time {
+	if v == 0 {
+		return time.Time{}
+	}
+	return time.Unix(int64(v-ntpDelta), 0)
+}
+
+func appendUint64(b []byte, v uint64) []byte {
+	return strconv.AppendUint(b, v, 10)
+}
+
+// AddTiming appends Timing field to Session. Both start and end can be zero.
+func (s Session) AddTiming(start, end time.Time) Session {
+	v := make([]byte, 0, 256)
+	v = appendUint64(v, TimeToNTP(start))
+	v = appendSpace(v)
+	v = appendUint64(v, TimeToNTP(end))
+	return s.append(TypeTiming, v)
+}
+
+// AddAttribute appends Attribute field to Session. If no values specified,
+// "a=<flag>" form is used, else first value is picked from values as <value>
+// and form "a=<attribute>:<value>" is used.
+func (s Session) AddAttribute(attribute string, values ...string) Session {
+	v := make([]byte, 0, 512)
+	v = append(v, attribute...)
+	if len(values) > 0 {
+		v = appendRune(v, attributesDelimiter)
+		v = append(v, values[0]...)
+	}
+	return s.append(TypeAttribute, v)
+}
+
+// BandwidthType is <bwtype> sub-field of Bandwidth field.
+type BandwidthType string
+
+// Possible values for <bwtype> defined in section 5.8.
+const (
+	BandwidthConferenceTotal     BandwidthType = "CT"
+	BandwidthApplicationSpecific BandwidthType = "AS"
+)
+
+// AddBandwidth appends Bandwidth field to Session.
+func (s Session) AddBandwidth(t BandwidthType, bandwidth int) Session {
+	v := make([]byte, 0, 128)
+	v = append(v, string(t)...)
+	v = appendRune(v, ':')
+	v = appendInt(v, bandwidth)
+	return s.append(TypeBandwidth, v)
 }
 
 func getDefault(v, d string) string {

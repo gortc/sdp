@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"testing"
+	"time"
 )
 
 func shouldDecode(tb testing.TB, s Session, name string) {
@@ -16,6 +17,13 @@ func shouldDecode(tb testing.TB, s Session, name string) {
 		fmt.Println(string(tData))
 		fmt.Println(string(buf))
 		tb.Errorf("not equal")
+	}
+	newSesssion, err := DecodeSession(buf, nil)
+	if err != nil {
+		tb.Errorf("decode error: %v", err)
+	}
+	if !newSesssion.Equal(s) {
+		tb.Error("sessions does not equal")
 	}
 }
 
@@ -40,9 +48,11 @@ func TestSession_AddConnectionDataIP(t *testing.T) {
 			IP:  net.ParseIP("224.2.36.42"),
 			TTL: 127}).
 		AddConnectionData(ConnectionData{
-			IP:        net.ParseIP("214.6.36.42"),
-			TTL:       95,
-			Addresses: 4,
+			IP:          net.ParseIP("214.6.36.42"),
+			AddressType: "IP4",
+			NetworkType: "IN",
+			TTL:         95,
+			Addresses:   4,
 		})
 	shouldDecodeExpS(t, s, "ip")
 }
@@ -61,4 +71,60 @@ func TestSession_AddOrigin(t *testing.T) {
 		IP:             net.ParseIP("FF15::103"),
 	})
 	shouldDecodeExpS(t, s, "origin")
+}
+
+func TestSession_AddTiming(t *testing.T) {
+	s := new(Session).
+		AddTiming(time.Time{}, time.Time{}).
+		AddTiming(time.Time{}, time.Unix(833473619, 0))
+	shouldDecodeExpS(t, s, "timing")
+}
+
+func TestSession_AddAttribute(t *testing.T) {
+	s := new(Session).
+		AddAttribute("recvonly").
+		AddAttribute("orient", "landscape")
+	shouldDecodeExpS(t, s, "attributes")
+}
+
+func TestSession_AddBandwidth(t *testing.T) {
+	s := new(Session).
+		AddBandwidth(BandwidthConferenceTotal, 154798).
+		AddBandwidth(BandwidthApplicationSpecific, 66781)
+	shouldDecodeExpS(t, s, "bandwidth")
+}
+
+func TestSession_AddSessionName(t *testing.T) {
+	s := new(Session).AddSessionName("CyConf")
+	shouldDecodeExpS(t, s, "name")
+}
+
+func TestSession_AddSessionInfo(t *testing.T) {
+	s := new(Session).AddSessionInfo("Info goes here")
+	shouldDecodeExpS(t, s, "info")
+}
+
+func TestSession_AddURI(t *testing.T) {
+	s := new(Session).AddURI("http://cydev.ru")
+	shouldDecodeExpS(t, s, "uri")
+}
+
+func TestNTP(t *testing.T) {
+	var ntpTable = []struct {
+		in  uint64
+		out time.Time
+	}{
+		{3549086042, time.Unix(1340097242, 0)},
+		{0, time.Time{}},
+	}
+	for _, tt := range ntpTable {
+		outReal := NTPToTime(tt.in)
+		if tt.out != outReal {
+			t.Errorf("%v != %v", tt.out, outReal)
+		}
+		outNTP := TimeToNTP(outReal)
+		if outNTP != tt.in {
+			t.Errorf("%d != %d", outNTP, tt.in)
+		}
+	}
 }

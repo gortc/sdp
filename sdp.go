@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// DecodeError wraps Reason of error and occurance Place.
+// DecodeError wraps Reason of error and occurrence Place.
 type DecodeError struct {
 	Reason string
 	Place  string
@@ -116,7 +116,7 @@ func (t Type) appendTo(b []byte) []byte {
 
 func (t Type) String() string {
 	switch t {
-	case TypeAttributes:
+	case TypeAttribute:
 		return "attributes"
 	case TypePhone:
 		return "phone"
@@ -144,7 +144,7 @@ func (t Type) String() string {
 		return "time zones"
 	case TypeEncryptionKeys:
 		return "encryption keys"
-	case TypeMediaDescriptions:
+	case TypeMediaDescription:
 		return "media descriptions"
 	default:
 		// falling back to raw value.
@@ -167,8 +167,8 @@ const (
 	TypeRepeatTimes        Type = 'r'
 	TypeTimeZones          Type = 'z'
 	TypeEncryptionKeys     Type = 'k'
-	TypeAttributes         Type = 'a'
-	TypeMediaDescriptions  Type = 'm'
+	TypeAttribute          Type = 'a'
+	TypeMediaDescription   Type = 'm'
 )
 
 // Session is set of Lines.
@@ -185,6 +185,20 @@ func (s Session) AppendTo(b []byte) []byte {
 		}
 	}
 	return b
+}
+
+// Equal returns true if b == s.
+func (s Session) Equal(b Session) bool {
+	if len(s) != len(b) {
+		return false
+	}
+	for i, line := range s {
+		lineB := b[i]
+		if !line.Equal(lineB) {
+			return false
+		}
+	}
+	return true
 }
 
 func (s Session) append(t Type, v []byte) Session {

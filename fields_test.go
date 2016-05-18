@@ -120,6 +120,22 @@ func TestSession_AddRepeatTimes(t *testing.T) {
 	shouldDecodeExpS(t, s, "repeat")
 }
 
+func TestSession_AddMediaDescription(t *testing.T) {
+	s := new(Session).AddMediaDescription(MediaDescription{
+		Type:        "video",
+		Port:        49170,
+		PortsNumber: 2,
+		Protocol:    "RTP/AVP",
+		Format:      "31",
+	}).AddMediaDescription(MediaDescription{
+		Type:     "audio",
+		Port:     49170,
+		Protocol: "RTP/AVP",
+		Format:   "555",
+	})
+	shouldDecodeExpS(t, s, "media")
+}
+
 func TestNTP(t *testing.T) {
 	var ntpTable = []struct {
 		in  uint64

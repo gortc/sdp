@@ -257,6 +257,30 @@ func (s Session) AddRepeatTimes(interval, duration time.Duration,
 	return s.append(TypeRepeatTimes, v)
 }
 
+// MediaDescription represents Media Description field value.
+type MediaDescription struct {
+	Type        string
+	Port        int
+	PortsNumber int
+	Protocol    string
+	Format      string
+}
+
+// AddMediaDescription appends Media Description field to Session.
+func (s Session) AddMediaDescription(m MediaDescription) Session {
+	v := make([]byte, 0, 512)
+	v = appendSpace(append(v, m.Type...))
+	v = appendInt(v, m.Port)
+	if m.PortsNumber != 0 {
+		v = appendRune(v, '/')
+		v = appendInt(v, m.PortsNumber)
+	}
+	v = appendSpace(v)
+	v = appendSpace(append(v, m.Protocol...))
+	v = append(v, m.Format...)
+	return s.append(TypeMediaDescription, v)
+}
+
 func getDefault(v, d string) string {
 	if len(v) == 0 {
 		return d

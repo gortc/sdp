@@ -109,6 +109,17 @@ func TestSession_AddURI(t *testing.T) {
 	shouldDecodeExpS(t, s, "uri")
 }
 
+func TestSession_AddRepeatTimes(t *testing.T) {
+	s := new(Session).
+		AddRepeatTimes(
+			time.Second*604800,
+			time.Second*3600,
+			0,
+			time.Second*90000,
+		)
+	shouldDecodeExpS(t, s, "repeat")
+}
+
 func TestNTP(t *testing.T) {
 	var ntpTable = []struct {
 		in  uint64

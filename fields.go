@@ -237,6 +237,26 @@ func (s Session) AddBandwidth(t BandwidthType, bandwidth int) Session {
 	return s.append(TypeBandwidth, v)
 }
 
+func appendInterval(b []byte, d time.Duration) []byte {
+	return appendInt(b, int(d.Seconds()))
+}
+
+// AddRepeatTimes appends Repeat Times field to Session. Does not support
+// "compact" syntax.
+func (s Session) AddRepeatTimes(interval, duration time.Duration,
+	offsets ...time.Duration) Session {
+	v := make([]byte, 0, 256)
+	v = appendSpace(appendInterval(v, interval))
+	v = appendSpace(appendInterval(v, duration))
+	for i, offset := range offsets {
+		v = appendInterval(v, offset)
+		if i != len(offsets)-1 {
+			v = appendSpace(v)
+		}
+	}
+	return s.append(TypeRepeatTimes, v)
+}
+
 func getDefault(v, d string) string {
 	if len(v) == 0 {
 		return d

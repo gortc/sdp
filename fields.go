@@ -207,12 +207,16 @@ func (s Session) AddTiming(start, end time.Time) Session {
 }
 
 // AddAttribute appends Attribute field to Session in a=<attribute>:<value>"
-// form.
-func (s Session) AddAttribute(attribute string, value string) Session {
+// form. If len(values) > 1, then "<value>" is "<val1> <val2> ... <valn>",
+// and if len(values) == 0, then AddFlag method is used in "a=<flag>" form.
+func (s Session) AddAttribute(attribute string, values ...string) Session {
+	if len(values) == 0 {
+		return s.AddFlag(attribute)
+	}
 	v := make([]byte, 0, 512)
 	v = append(v, attribute...)
 	v = appendRune(v, attributesDelimiter)
-	v = append(v, value...)
+	v = appendJoinStrings(v, values...)
 	return s.append(TypeAttribute, v)
 }
 

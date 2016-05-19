@@ -1,2 +1,4 @@
 a=recvonly
+a=anotherflag
 a=orient:landscape
+a=rtpmap:96 L8/8000

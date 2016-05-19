@@ -83,7 +83,9 @@ func TestSession_AddTiming(t *testing.T) {
 func TestSession_AddAttribute(t *testing.T) {
 	s := new(Session).
 		AddFlag("recvonly").
-		AddAttribute("orient", "landscape")
+		AddAttribute("anotherflag").
+		AddAttribute("orient", "landscape").
+		AddAttribute("rtpmap", "96", "L8/8000")
 	shouldDecodeExpS(t, s, "attributes")
 }
 

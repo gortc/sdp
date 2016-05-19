@@ -65,14 +65,6 @@ func (s Session) AddConnectionData(data ConnectionData) Session {
 	return s.append(TypeConnectionData, v)
 }
 
-// AddConnectionDataRaw appends Connection Data field to Session using
-// raw strings as sub-fields values.
-func (s Session) AddConnectionDataRaw(netType, addType, data string) Session {
-	v := make([]byte, 0, 256)
-	v = appendJoinStrings(v, netType, addType, data)
-	return s.append(TypeConnectionData, v)
-}
-
 // AddConnectionDataIP appends Connection Data field using only ip address.
 func (s Session) AddConnectionDataIP(ip net.IP) Session {
 	return s.AddConnectionData(ConnectionData{
@@ -274,24 +266,69 @@ func (s Session) AddBandwidth(t BandwidthType, bandwidth int) Session {
 	return s.append(TypeBandwidth, v)
 }
 
-func appendInterval(b []byte, d time.Duration) []byte {
+type durationUnit struct {
+	d time.Duration
+	r rune
+}
+
+func (u durationUnit) append(v []byte, b time.Duration) []byte {
+	v = appendInt(v, int(b/u.d))
+	return appendRune(v, u.r)
+}
+
+var durationUnits = [...]durationUnit{
+	{time.Hour * 24, 'd'},
+	{time.Hour, 'h'},
+	{time.Minute, 'm'},
+}
+
+func appendIntervalCompact(b []byte, d time.Duration) []byte {
+	if d == 0 {
+		return appendRune(b, '0')
+	}
+	for _, unit := range durationUnits {
+		if d%unit.d == 0 {
+			return unit.append(b, d)
+		}
+	}
+	return appendInterval(b, d, false)
+}
+
+func appendInterval(b []byte, d time.Duration, compact bool) []byte {
+	if d == 0 {
+		return appendRune(b, '0')
+	}
+	if compact {
+		return appendIntervalCompact(b, d)
+	}
 	return appendInt(b, int(d.Seconds()))
 }
 
-// AddRepeatTimes appends Repeat Times field to Session. Does not support
-// "compact" syntax.
-func (s Session) AddRepeatTimes(interval, duration time.Duration,
+func (s Session) addRepeatTimes(compact bool, interval, duration time.Duration,
 	offsets ...time.Duration) Session {
 	v := make([]byte, 0, 256)
-	v = appendSpace(appendInterval(v, interval))
-	v = appendSpace(appendInterval(v, duration))
+	v = appendSpace(appendInterval(v, interval, compact))
+	v = appendSpace(appendInterval(v, duration, compact))
 	for i, offset := range offsets {
-		v = appendInterval(v, offset)
+		v = appendInterval(v, offset, compact)
 		if i != len(offsets)-1 {
 			v = appendSpace(v)
 		}
 	}
 	return s.append(TypeRepeatTimes, v)
+}
+
+// AddRepeatTimes appends Repeat Times field to Session.
+func (s Session) AddRepeatTimes(interval, duration time.Duration,
+	offsets ...time.Duration) Session {
+	return s.addRepeatTimes(false, interval, duration, offsets...)
+}
+
+// AddRepeatTimesCompact appends Repeat Times field to Session using "compact"
+// syntax.
+func (s Session) AddRepeatTimesCompact(interval, duration time.Duration,
+	offsets ...time.Duration) Session {
+	return s.addRepeatTimes(true, interval, duration, offsets...)
 }
 
 // MediaDescription represents Media Description field value.
@@ -332,6 +369,34 @@ func (s Session) AddEncryptionKey(method, key string) Session {
 // "k=<method>" format to Session.
 func (s Session) AddEncryptionMethod(method string) Session {
 	return s.appendString(TypeEncryptionKeys, method)
+}
+
+// TimeZone is representation of <adjustment time> <offset> pair.
+type TimeZone struct {
+	Adjustment time.Time
+	Offset     time.Duration
+}
+
+func (t TimeZone) appendInterval(v []byte) []byte {
+	return appendIntervalCompact(v, t.Offset)
+}
+
+func (t TimeZone) append(v []byte) []byte {
+	v = appendUint64(v, TimeToNTP(t.Adjustment))
+	v = appendSpace(v)
+	return t.appendInterval(v)
+}
+
+// AddTimeZones append TimeZones field to Session.
+func (s Session) AddTimeZones(zones ...TimeZone) Session {
+	v := make([]byte, 0, 512)
+	for i, zone := range zones {
+		v = zone.append(v)
+		if i != len(zones)-1 {
+			v = appendSpace(v)
+		}
+	}
+	return s.append(TypeTimeZones, v)
 }
 
 func getDefault(v, d string) string {

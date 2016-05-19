@@ -118,6 +118,18 @@ func TestSession_AddRepeatTimes(t *testing.T) {
 			time.Second*3600,
 			0,
 			time.Second*90000,
+		).
+		AddRepeatTimesCompact(
+			time.Second*604800,
+			time.Second*3600,
+			0,
+			time.Second*90000,
+		).
+		AddRepeatTimesCompact(
+			time.Second*604810,
+			time.Second*3600,
+			0,
+			time.Second*90000,
 		)
 	shouldDecodeExpS(t, s, "repeat")
 }
@@ -142,6 +154,17 @@ func TestSession_AddEncryptionKey(t *testing.T) {
 	s := new(Session).AddEncryptionKey("clear", "ab8c4df8b8f4as8v8iuy8re").
 		AddEncryptionMethod("prompt")
 	shouldDecodeExpS(t, s, "keys")
+}
+
+func TestSession_AddTimeZones(t *testing.T) {
+	s := new(Session).AddTimeZones(
+		TimeZone{NTPToTime(2882844526), -1 * time.Hour},
+		TimeZone{Adjustment: NTPToTime(2898848070)},
+	).AddTimeZones(
+		TimeZone{NTPToTime(2898848070), time.Minute * 90},
+		TimeZone{Adjustment: NTPToTime(2898848070)},
+	)
+	shouldDecodeExpS(t, s, "zones")
 }
 
 func TestSession_EX1(t *testing.T) {

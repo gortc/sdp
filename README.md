@@ -49,7 +49,7 @@ Media description, if present
 - [x] b (zero or more bandwidth information lines)
 - [x] t (time)
 - [x] r (repeat)
-- [ ] z (time zone adjustments)
+- [x] z (time zone adjustments)
 - [x] k (encryption key)
 - [x] a (zero or more session attribute lines)
 

@@ -144,6 +144,56 @@ func TestSession_AddEncryptionKey(t *testing.T) {
 	shouldDecodeExpS(t, s, "keys")
 }
 
+func TestSession_EX1(t *testing.T) {
+	/*
+		v=0
+		o=jdoe 2890844526 2890842807 IN IP4 10.47.16.5
+		s=SDP Seminar
+		i=A Seminar on the session description protocol
+		u=http://www.example.com/seminars/sdp.pdf
+		e=j.doe@example.com (Jane Doe)
+		c=IN IP4 224.2.17.12/127
+		t=2873397496 2873404696
+		a=recvonly
+		m=audio 49170 RTP/AVP 0
+		m=video 51372 RTP/AVP 99
+		a=rtpmap:99 h263-1998/90000
+	*/
+
+	s := new(Session).
+		AddVersion(0).
+		AddOrigin(Origin{
+			Username:       "jdoe",
+			SessionID:      2890844526,
+			SessionVersion: 2890842807,
+			IP:             net.ParseIP("10.47.16.5"),
+		}).
+		AddSessionName("SDP Seminar").
+		AddSessionInfo("A Seminar on the session description protocol").
+		AddURI("http://www.example.com/seminars/sdp.pdf").
+		AddEmail("j.doe@example.com (Jane Doe)").
+		AddConnectionData(ConnectionData{
+			IP:  net.ParseIP("224.2.17.12"),
+			TTL: 127,
+		}).
+		AddTiming(NTPToTime(2873397496), NTPToTime(2873404696)).
+		AddFlag("recvonly").
+		AddMediaDescription(MediaDescription{
+			Type:     "audio",
+			Port:     49170,
+			Protocol: "RTP/AVP",
+			Format:   "0",
+		}).
+		AddMediaDescription(MediaDescription{
+			Type:     "video",
+			Port:     51372,
+			Protocol: "RTP/AVP",
+			Format:   "99",
+		}).
+		AddAttribute("rtpmap", "99", "h263-1998/90000")
+	shouldDecode(t, s, "sdp_session_ex1")
+}
+
 func TestNTP(t *testing.T) {
 	var ntpTable = []struct {
 		in  uint64

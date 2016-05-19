@@ -45,10 +45,13 @@ func appendUint(dst []byte, n int) []byte {
 }
 
 func appendByte(v []byte, i byte) []byte {
-	// ALLOCATIONS: suboptimal. BenchmarkAppendByte.
+	if i == 0 {
+		return appendRune(v, '0')
+	}
 	if i > 0 {
 		return appendUint(v, int(i))
 	}
+	// ALLOCATIONS: suboptimal. BenchmarkAppendByte.
 	return append(v, strconv.Itoa(int(i))...)
 }
 

@@ -50,7 +50,7 @@ Media description, if present
 - [x] t (time)
 - [x] r (repeat)
 - [ ] z (time zone adjustments)
-- [ ] k (encryption key)
+- [x] k (encryption key)
 - [x] a (zero or more session attribute lines)
 
 ### TODO:

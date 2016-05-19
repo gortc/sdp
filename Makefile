@@ -17,3 +17,5 @@ install:
 	go get -u github.com/dvyukov/go-fuzz/go-fuzz
 format:
 	goimports -w .
+profile:
+	go tool pprof -alloc_space sdp.test mem.out

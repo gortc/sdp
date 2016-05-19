@@ -13,7 +13,13 @@ func appendSpace(v []byte) []byte {
 }
 
 func appendInt(v []byte, i int) []byte {
+	// ALLOCATIONS: suboptimal.
 	return append(v, strconv.Itoa(i)...)
+}
+
+func appendByte(v []byte, i byte) []byte {
+	// ALLOCATIONS: suboptimal.
+	return append(v, strconv.Itoa(int(i))...)
 }
 
 func appendJoinStrings(b []byte, v ...string) []byte {
@@ -28,6 +34,7 @@ func appendJoinStrings(b []byte, v ...string) []byte {
 }
 
 func appendIP(b []byte, ip net.IP) []byte {
+	// ALLOCATIONS: suboptimal.
 	return append(b, strings.ToUpper(ip.String())...)
 }
 
@@ -49,11 +56,13 @@ func (s Session) AddEmail(email string) Session {
 // AddConnectionData appends Connection Data field to Session
 // using ConnectionData struct with sensible defaults.
 func (s Session) AddConnectionData(data ConnectionData) Session {
-	return s.AddConnectionDataRaw(
-		data.getNetworkType(),
-		data.getAddressType(),
-		data.ConnectionAddress(),
-	)
+	v := make([]byte, 0, 512)
+	v = append(v, data.getNetworkType()...)
+	v = appendSpace(v)
+	v = append(v, data.getAddressType()...)
+	v = appendSpace(v)
+	v = data.appendAddress(v)
+	return s.append(TypeConnectionData, v)
 }
 
 // AddConnectionDataRaw appends Connection Data field to Session using
@@ -129,6 +138,7 @@ func (c ConnectionData) getAddressType() string {
 // ConnectionAddress formats <connection-address> sub-field.
 func (c ConnectionData) ConnectionAddress() string {
 	// <base multicast address>[/<ttl>]/<number of addresses>
+	// ALLOCATIONS: suboptimal.
 	var address = strings.ToUpper(c.IP.String())
 	if c.TTL > 0 {
 		address += fmt.Sprintf("/%d", c.TTL)
@@ -137,6 +147,19 @@ func (c ConnectionData) ConnectionAddress() string {
 		address += fmt.Sprintf("/%d", c.Addresses)
 	}
 	return address
+}
+
+func (c ConnectionData) appendAddress(v []byte) []byte {
+	v = appendIP(v, c.IP)
+	if c.TTL > 0 {
+		v = appendRune(v, '/')
+		v = appendByte(v, c.TTL)
+	}
+	if c.Addresses > 0 {
+		v = appendRune(v, '/')
+		v = appendByte(v, c.Addresses)
+	}
+	return v
 }
 
 // Origin is field defined in RFC4566 5.2.
@@ -204,6 +227,12 @@ func (s Session) AddTiming(start, end time.Time) Session {
 	v = appendSpace(v)
 	v = appendUint64(v, TimeToNTP(end))
 	return s.append(TypeTiming, v)
+}
+
+// AddTimingNTP appends Timing field to Session with NTP timestamps as input.
+// It is just wrapper for AddTiming and NTPToTime.
+func (s Session) AddTimingNTP(start, end uint64) Session {
+	return s.AddTiming(NTPToTime(start), NTPToTime(end))
 }
 
 // AddAttribute appends Attribute field to Session in a=<attribute>:<value>"

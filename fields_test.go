@@ -176,7 +176,7 @@ func TestSession_EX1(t *testing.T) {
 			IP:  net.ParseIP("224.2.17.12"),
 			TTL: 127,
 		}).
-		AddTiming(NTPToTime(2873397496), NTPToTime(2873404696)).
+		AddTimingNTP(2873397496, 2873404696).
 		AddFlag("recvonly").
 		AddMediaDescription(MediaDescription{
 			Type:     "audio",
@@ -192,6 +192,49 @@ func TestSession_EX1(t *testing.T) {
 		}).
 		AddAttribute("rtpmap", "99", "h263-1998/90000")
 	shouldDecode(t, s, "sdp_session_ex1")
+}
+
+func BenchmarkSession_EX1(b *testing.B) {
+	s := make(Session, 0, 30)
+	b.ReportAllocs()
+	var (
+		sessIP = net.ParseIP("10.47.16.5")
+		connIP = net.ParseIP("224.2.17.12")
+	)
+	for i := 0; i < b.N; i++ {
+		s = s.AddVersion(0)
+		s = s.AddOrigin(Origin{
+			Username:       "jdoe",
+			SessionID:      2890844526,
+			SessionVersion: 2890842807,
+			IP:             sessIP,
+		})
+		s = s.AddSessionName("SDP Seminar")
+		s = s.AddSessionInfo("A Seminar on the session description protocol")
+		s = s.AddURI("http://www.example.com/seminars/sdp.pdf")
+		s = s.AddEmail("j.doe@example.com (Jane Doe)")
+		s = s.AddConnectionData(ConnectionData{
+			IP:  connIP,
+			TTL: 127,
+		})
+		s = s.AddTimingNTP(2873397496, 2873404696)
+		s = s.AddFlag("recvonly")
+		s = s.AddMediaDescription(MediaDescription{
+			Type:     "audio",
+			Port:     49170,
+			Protocol: "RTP/AVP",
+			Format:   "0",
+		})
+		s = s.AddMediaDescription(MediaDescription{
+			Type:     "video",
+			Port:     51372,
+			Protocol: "RTP/AVP",
+			Format:   "99",
+		})
+		s = s.AddAttribute("rtpmap", "99", "h263-1998/90000")
+		s = s.reset()
+	}
+
 }
 
 func TestNTP(t *testing.T) {

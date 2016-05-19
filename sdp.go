@@ -174,6 +174,10 @@ const (
 // Session is set of Lines.
 type Session []Line
 
+func (s Session) reset() Session {
+	return s[:0]
+}
+
 // AppendTo appends all session lines to b and returns b.
 func (s Session) AppendTo(b []byte) []byte {
 	last := len(s) - 1
@@ -201,7 +205,7 @@ func (s Session) Equal(b Session) bool {
 	return true
 }
 
-func (s Session) append(t Type, v []byte) Session {
+func (s Session) getLine(t Type) Line {
 	line := Line{
 		Type: t,
 	}
@@ -210,12 +214,19 @@ func (s Session) append(t Type, v []byte) Session {
 	if cap(s) > l+1 {
 		line.Value = s[:l+1][l].Value[:0]
 	}
+	return line
+}
+
+func (s Session) append(t Type, v []byte) Session {
+	line := s.getLine(t)
 	line.Value = append(line.Value, v...)
 	return append(s, line)
 }
 
 func (s Session) appendString(t Type, v string) Session {
-	return s.append(t, []byte(v))
+	line := s.getLine(t)
+	line.Value = append(line.Value, v...)
+	return append(s, line)
 }
 
 func blankSlice(v []byte) bool {

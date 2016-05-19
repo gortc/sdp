@@ -13,12 +13,12 @@ func appendSpace(v []byte) []byte {
 }
 
 func appendInt(v []byte, i int) []byte {
-	// ALLOCATIONS: suboptimal.
+	// ALLOCATIONS: suboptimal. BenchmarkAppendInt.
 	return append(v, strconv.Itoa(i)...)
 }
 
 func appendByte(v []byte, i byte) []byte {
-	// ALLOCATIONS: suboptimal.
+	// ALLOCATIONS: suboptimal. BenchmarkAppendByte.
 	return append(v, strconv.Itoa(int(i))...)
 }
 
@@ -34,7 +34,7 @@ func appendJoinStrings(b []byte, v ...string) []byte {
 }
 
 func appendIP(b []byte, ip net.IP) []byte {
-	// ALLOCATIONS: suboptimal.
+	// ALLOCATIONS: suboptimal. BenchmarkAppendIP.
 	return append(b, strings.ToUpper(ip.String())...)
 }
 
@@ -138,7 +138,7 @@ func (c ConnectionData) getAddressType() string {
 // ConnectionAddress formats <connection-address> sub-field.
 func (c ConnectionData) ConnectionAddress() string {
 	// <base multicast address>[/<ttl>]/<number of addresses>
-	// ALLOCATIONS: suboptimal.
+	// ALLOCATIONS: suboptimal. Use appendAddress.
 	var address = strings.ToUpper(c.IP.String())
 	if c.TTL > 0 {
 		address += fmt.Sprintf("/%d", c.TTL)

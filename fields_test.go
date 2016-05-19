@@ -194,6 +194,49 @@ func TestSession_EX1(t *testing.T) {
 	shouldDecode(t, s, "sdp_session_ex1")
 }
 
+func BenchmarkSession_AddConnectionData(b *testing.B) {
+	s := make(Session, 0, 5)
+	b.ReportAllocs()
+	var (
+		connIP = net.ParseIP("224.2.17.12")
+	)
+	for i := 0; i < b.N; i++ {
+		s = s.AddConnectionData(ConnectionData{
+			IP:  connIP,
+			TTL: 127,
+		})
+		s = s.reset()
+	}
+}
+
+func BenchmarkAppendIP(b *testing.B) {
+	buf := make([]byte, 0, 256)
+	connIP := net.ParseIP("224.2.17.12")
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		buf = appendIP(buf, connIP)
+		buf = buf[:0]
+	}
+}
+
+func BenchmarkAppendByte(b *testing.B) {
+	buf := make([]byte, 0, 64)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		buf = appendByte(buf, 128)
+		buf = buf[:0]
+	}
+}
+
+func BenchmarkAppendInt(b *testing.B) {
+	buf := make([]byte, 0, 64)
+	b.ReportAllocs()
+	for i := 0; i < b.N; i++ {
+		buf = appendInt(buf, 1024)
+		buf = buf[:0]
+	}
+}
+
 func BenchmarkSession_EX1(b *testing.B) {
 	s := make(Session, 0, 30)
 	b.ReportAllocs()

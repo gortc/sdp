@@ -58,3 +58,8 @@ Media description, if present
 - [x] Parsing
 - [ ] Decoding (via decoder)
 - [ ] High level encoding/decoding for Session and Media desdriptions.
+
+### Possible optimizations
+There are comments `// ALLOCATIONS: suboptimal.` and `// CPU: suboptimal. `
+that indicate suboptimal implementation that can be optimized. There are often
+a benchmarks for this pieces.

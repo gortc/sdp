@@ -13,12 +13,42 @@ func appendSpace(v []byte) []byte {
 }
 
 func appendInt(v []byte, i int) []byte {
-	// ALLOCATIONS: suboptimal. BenchmarkAppendInt.
+	if i == 0 {
+		return appendRune(v, '0')
+	}
+	if i > 0 {
+		return appendUint(v, i)
+	}
+	// ALLOCATIONS: suboptimal.
 	return append(v, strconv.Itoa(i)...)
+}
+
+// AppendUint appends n to dst and returns the extended dst.
+func appendUint(dst []byte, n int) []byte {
+	if n < 0 {
+		panic("BUG: n should be positive")
+	}
+	var b [20]byte
+	buf := b[:]
+	i := len(buf)
+	var q int
+	for n >= 10 {
+		i--
+		q = n / 10
+		buf[i] = '0' + byte(n-q*10)
+		n = q
+	}
+	i--
+	buf[i] = '0' + byte(n)
+	dst = append(dst, buf[i:]...)
+	return dst
 }
 
 func appendByte(v []byte, i byte) []byte {
 	// ALLOCATIONS: suboptimal. BenchmarkAppendByte.
+	if i > 0 {
+		return appendUint(v, int(i))
+	}
 	return append(v, strconv.Itoa(int(i))...)
 }
 
@@ -34,13 +64,29 @@ func appendJoinStrings(b []byte, v ...string) []byte {
 }
 
 func appendIP(b []byte, ip net.IP) []byte {
-	// ALLOCATIONS: suboptimal. BenchmarkAppendIP.
-	return append(b, strings.ToUpper(ip.String())...)
+	switch ipV4 := ip.To4(); ipV4 {
+	case nil:
+		// ALLOCATIONS: suboptimal.
+		return append(b, strings.ToUpper(ip.String())...)
+	default:
+		return appendIPv4(b, ipV4)
+	}
+}
+
+func appendIPv4(dst []byte, ip net.IP) []byte {
+	dst = appendUint(dst, int(ip[0]))
+	for i := 1; i < 4; i++ {
+		dst = append(dst, '.')
+		dst = appendUint(dst, int(ip[i]))
+	}
+	return dst
 }
 
 // AddVersion appends Version field to Session.
-func (s Session) AddVersion(v int) Session {
-	return s.append(TypeProtocolVersion, []byte(strconv.Itoa(v)))
+func (s Session) AddVersion(version int) Session {
+	v := make([]byte, 0, 64)
+	v = appendInt(v, version)
+	return s.append(TypeProtocolVersion, v)
 }
 
 // AddPhone appends Phone Address field to Session.

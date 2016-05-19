@@ -138,6 +138,12 @@ func TestSession_AddMediaDescription(t *testing.T) {
 	shouldDecodeExpS(t, s, "media")
 }
 
+func TestSession_AddEncryptionKey(t *testing.T) {
+	s := new(Session).AddEncryptionKey("clear", "ab8c4df8b8f4as8v8iuy8re").
+		AddEncryptionMethod("prompt")
+	shouldDecodeExpS(t, s, "keys")
+}
+
 func TestNTP(t *testing.T) {
 	var ntpTable = []struct {
 		in  uint64

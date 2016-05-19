@@ -289,6 +289,22 @@ func (s Session) AddMediaDescription(m MediaDescription) Session {
 	return s.append(TypeMediaDescription, v)
 }
 
+// AddEncryptionKey appends Encryption Key field with method and key in
+// "k=<method>:<encryption key>" format to Session.
+func (s Session) AddEncryptionKey(method, key string) Session {
+	v := make([]byte, 0, 512)
+	v = append(v, method...)
+	v = appendRune(v, attributesDelimiter)
+	v = append(v, key...)
+	return s.append(TypeEncryptionKeys, v)
+}
+
+// AddEncryptionMethod appends Encryption Key field with only method in
+// "k=<method>" format to Session.
+func (s Session) AddEncryptionMethod(method string) Session {
+	return s.appendString(TypeEncryptionKeys, method)
+}
+
 func getDefault(v, d string) string {
 	if len(v) == 0 {
 		return d

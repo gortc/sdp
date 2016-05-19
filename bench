@@ -1,2 +1,2 @@
 #!/bin/bash
-go test -bench $1 -o sdp.test -memprofile=mem.out -benchtime=5s
+go test -bench $1 -o sdp.test -memprofile=mem.out -cpuprofile cpu.out -benchtime=5s

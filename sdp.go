@@ -259,7 +259,7 @@ func (s sliceScanner) Line() []byte {
 }
 
 func (s *sliceScanner) Scan() bool {
-	// CPU: optimizations are possible.
+	// CPU: suboptimal.
 	// TODO: handle /r
 	for {
 		s.pos = s.end

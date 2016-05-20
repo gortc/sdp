@@ -127,7 +127,7 @@ func TestType_String(t *testing.T) {
 		TypeTiming,
 		TypeRepeatTimes,
 		TypeTimeZones,
-		TypeEncryptionKeys,
+		TypeEncryptionKey,
 		TypeAttribute,
 		TypeMediaDescription,
 	}

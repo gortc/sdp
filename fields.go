@@ -411,13 +411,13 @@ func (s Session) AddEncryptionKey(method, key string) Session {
 	v = append(v, method...)
 	v = appendRune(v, attributesDelimiter)
 	v = append(v, key...)
-	return s.append(TypeEncryptionKeys, v)
+	return s.append(TypeEncryptionKey, v)
 }
 
 // AddEncryptionMethod appends Encryption Key field with only method in
 // "k=<method>" format to Session.
 func (s Session) AddEncryptionMethod(method string) Session {
-	return s.appendString(TypeEncryptionKeys, method)
+	return s.appendString(TypeEncryptionKey, method)
 }
 
 // TimeZone is representation of <adjustment time> <offset> pair.

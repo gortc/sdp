@@ -37,7 +37,7 @@ Media description, if present
    a=* (zero or more media attribute lines)
 ```
 
-### Supported fields:
+### Encoding
 - [x] v (protocol version)
 - [x] o (originator and session identifier)
 - [x] s (session name)
@@ -53,11 +53,27 @@ Media description, if present
 - [x] k (encryption key)
 - [x] a (zero or more session attribute lines)
 
+### Decoding
+- [x] v (protocol version)
+- [ ] o (originator and session identifier)
+- [ ] s (session name)
+- [ ] i (session information)
+- [ ] u (URI of description)
+- [ ] e (email address)
+- [ ] p (phone number)
+- [ ] c (connection information)
+- [ ] b (zero or more bandwidth information lines)
+- [ ] t (time)
+- [ ] r (repeat)
+- [ ] z (time zone adjustments)
+- [ ] k (encryption key)
+- [ ] a (zero or more session attribute lines)
+
 ### TODO:
 - [x] Encoding
 - [x] Parsing
-- [ ] Decoding (via decoder)
-- [ ] High level encoding/decoding for Session and Media desdriptions.
+- [ ] Decoding
+- [ ] High level encoding/decoding for Session and Media descriptions.
 
 ### Possible optimizations
 There are comments `// ALLOCATIONS: suboptimal.` and `// CPU: suboptimal. `

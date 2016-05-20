@@ -142,7 +142,7 @@ func (t Type) String() string {
 		return "repeat times"
 	case TypeTimeZones:
 		return "time zones"
-	case TypeEncryptionKeys:
+	case TypeEncryptionKey:
 		return "encryption keys"
 	case TypeMediaDescription:
 		return "media descriptions"
@@ -166,7 +166,7 @@ const (
 	TypeTiming             Type = 't'
 	TypeRepeatTimes        Type = 'r'
 	TypeTimeZones          Type = 'z'
-	TypeEncryptionKeys     Type = 'k'
+	TypeEncryptionKey      Type = 'k'
 	TypeAttribute          Type = 'a'
 	TypeMediaDescription   Type = 'm'
 )

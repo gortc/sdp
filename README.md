@@ -62,7 +62,7 @@ Media description, if present
 - [x] e (email address)
 - [x] p (phone number)
 - [ ] c (connection information)
-- [ ] b (zero or more bandwidth information lines)
+- [x] b (zero or more bandwidth information lines)
 - [ ] t (time)
 - [ ] r (repeat)
 - [ ] z (time zone adjustments)

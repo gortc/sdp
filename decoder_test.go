@@ -51,6 +51,12 @@ func TestDecoder_Decode(t *testing.T) {
 		t.Error("bad encryption",
 			m.Medias[1].Encryption, "!=", expectedEncryption)
 	}
+	if m.Start != NTPToTime(2873397496) {
+		t.Error(m.Start, "!=", NTPToTime(2873397496))
+	}
+	if m.End != NTPToTime(2873404696) {
+		t.Error(m.End, "!=", NTPToTime(2873404696))
+	}
 }
 
 func BenchmarkDecoder_Decode(b *testing.B) {

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"time"
+
 	"github.com/pkg/errors"
 )
 
@@ -31,6 +33,8 @@ type Message struct {
 	Encryption    Encryption
 	Bandwidth     int
 	BandwidthType BandwidthType
+	Start         time.Time
+	End           time.Time
 }
 
 // Flag returns true if set.
@@ -430,6 +434,46 @@ func (d *Decoder) decodeBandwidth(m *Message) error {
 	return nil
 }
 
+func parseNTP(v []byte) (uint64, error) {
+	return strconv.ParseUint(string(v), 10, 64)
+}
+
+func (d *Decoder) decodeTimingField(m *Message) error {
+	var (
+		startV, endV []byte
+		isEndV       bool
+		err          error
+	)
+	for _, v := range d.v {
+		if v == ' ' {
+			if isEndV {
+				msg := "unexpected second space in timing"
+				err = newSectionDecodeError(d.section, msg)
+				return errors.Wrap(err, "failed to decode timing")
+			}
+			isEndV = true
+			continue
+		}
+		if isEndV {
+			endV = append(endV, v)
+		} else {
+			startV = append(startV, v)
+		}
+	}
+	var (
+		ntpStart, ntpEnd uint64
+	)
+	if ntpStart, err = parseNTP(startV); err != nil {
+		return errors.Wrap(err, "failed to parse start time")
+	}
+	if ntpEnd, err = parseNTP(endV); err != nil {
+		return errors.Wrap(err, "failed to parse end time")
+	}
+	m.Start = NTPToTime(ntpStart)
+	m.End = NTPToTime(ntpEnd)
+	return nil
+}
+
 func (d *Decoder) decodeField(m *Message) error {
 	switch d.t {
 	case TypeProtocolVersion:
@@ -450,6 +494,8 @@ func (d *Decoder) decodeField(m *Message) error {
 		return d.decodeEncryption(m)
 	case TypeBandwidth:
 		return d.decodeBandwidth(m)
+	case TypeTiming:
+		return d.decodeTimingField(m)
 	}
 	// TODO: uncomment when all decoder methods implemented
 	// panic("unexpected field")

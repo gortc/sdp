@@ -63,7 +63,7 @@ Media description, if present
 - [x] p (phone number)
 - [ ] c (connection information)
 - [x] b (zero or more bandwidth information lines)
-- [ ] t (time)
+- [x] t (time)
 - [ ] r (repeat)
 - [ ] z (time zone adjustments)
 - [x] k (encryption key)

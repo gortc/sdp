@@ -3,7 +3,6 @@ package sdp
 import (
 	"fmt"
 	"strconv"
-
 	"time"
 
 	"github.com/pkg/errors"

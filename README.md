@@ -56,17 +56,17 @@ Media description, if present
 ### Decoding
 - [x] v (protocol version)
 - [ ] o (originator and session identifier)
-- [ ] s (session name)
-- [ ] i (session information)
-- [ ] u (URI of description)
-- [ ] e (email address)
-- [ ] p (phone number)
+- [x] s (session name)
+- [x] i (session information)
+- [x] u (URI of description)
+- [x] e (email address)
+- [x] p (phone number)
 - [ ] c (connection information)
 - [ ] b (zero or more bandwidth information lines)
 - [ ] t (time)
 - [ ] r (repeat)
 - [ ] z (time zone adjustments)
-- [ ] k (encryption key)
+- [x] k (encryption key)
 - [x] a (zero or more session attribute lines)
 
 ### TODO:

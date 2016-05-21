@@ -19,17 +19,19 @@ func (a Attributes) Flag(flag string) bool { return len(a[flag]) > 0 }
 
 // Message is top level abstraction.
 type Message struct {
-	Session Session
-
-	Version    int
-	Origin     Origin
-	Name       string
-	Info       string
-	Email      string
-	Phone      string
-	Connection ConnectionData
-	Attributes Attributes
-	Medias     Medias
+	Version       int
+	Origin        Origin
+	Name          string
+	Info          string
+	Email         string
+	Phone         string
+	URI           string
+	Connection    ConnectionData
+	Attributes    Attributes
+	Medias        Medias
+	Encryption    Encryption
+	Bandwidth     int
+	BandwidthType BandwidthType
 }
 
 // Flag returns true if set.
@@ -54,13 +56,21 @@ func (m Message) Attribute(attribute string) string {
 // Medias is list of Media.
 type Medias []Media
 
+// Encryption wraps encryption Key and Method.
+type Encryption struct {
+	Method string
+	Key    string
+}
+
 // Media is media description and attributes.
 type Media struct {
-	Name        string
-	Info        string
-	Description MediaDescription
-	Connection  ConnectionData
-	Attributes  Attributes
+	Title         string
+	Description   MediaDescription
+	Connection    ConnectionData
+	Attributes    Attributes
+	Encryption    Encryption
+	Bandwidth     int
+	BandwidthType BandwidthType
 }
 
 // Decoder decodes session.
@@ -248,8 +258,27 @@ func newSectionDecodeError(s section, m string) DecodeError {
 	return newDecodeError(place, m)
 }
 
+func (d *Decoder) decodeKV() (string, string) {
+	var (
+		key     []byte
+		value   []byte
+		isValue bool
+	)
+	for _, v := range d.v {
+		if v == ':' && !isValue {
+			isValue = true
+			continue
+		}
+		if isValue {
+			value = append(value, v)
+		} else {
+			key = append(key, v)
+		}
+	}
+	return string(key), string(value)
+}
+
 func (d *Decoder) decodeTiming(m *Message) error {
-	//log.Println("decoding timing")
 	d.sPos = 0
 	d.section = sectionTime
 	for d.next() {
@@ -264,7 +293,6 @@ func (d *Decoder) decodeTiming(m *Message) error {
 			return d.decodeField(m)
 		default:
 			// possible switch to Media or Session description
-			//log.Warn("rewinding, out of timing")
 			d.pos--
 			return nil
 		}
@@ -304,40 +332,101 @@ func (d *Decoder) decodeVersion(m *Message) error {
 	return nil
 }
 
-func addAttribute(a Attributes, k, v []byte) Attributes {
+func addAttribute(a Attributes, k, v string) Attributes {
 	if a == nil {
 		a = make(Attributes)
 	}
 	if len(v) == 0 {
-		v = append(v, "true"...)
+		v = "true"
 	}
-	a[string(k)] = string(v)
+	a[k] = v
 	return a
 }
 
 func (d *Decoder) decodeAttribute(m *Message) error {
-	//log.Println("DECODING ATTRIBUTE")
-	var (
-		key     []byte
-		value   []byte
-		isValue bool
-	)
-	for _, v := range d.v {
-		if v == ':' && !isValue {
-			isValue = true
-			continue
-		}
-		if isValue {
-			value = append(value, v)
-		} else {
-			key = append(key, v)
-		}
+	k, v := d.decodeKV()
+	switch d.section {
+	case sectionMedia:
+		d.m.Attributes = addAttribute(d.m.Attributes, k, v)
+	default:
+		m.Attributes = addAttribute(m.Attributes, k, v)
+	}
+	return nil
+}
+
+func (d *Decoder) decodeSessionName(m *Message) error {
+	m.Name = string(d.v)
+	return nil
+}
+
+func (d *Decoder) decodeSessionInfo(m *Message) error {
+	if d.section == sectionMedia {
+		d.m.Title = string(d.v)
+	} else {
+		m.Info = string(d.v)
+	}
+	return nil
+}
+
+func (d *Decoder) decodeEmail(m *Message) error {
+	m.Email = string(d.v)
+	return nil
+}
+
+func (d *Decoder) decodePhone(m *Message) error {
+	m.Phone = string(d.v)
+	return nil
+}
+
+func (d *Decoder) decodeURI(m *Message) error {
+	m.URI = string(d.v)
+	return nil
+}
+
+func (d *Decoder) decodeEncryption(m *Message) error {
+	k, v := d.decodeKV()
+	e := Encryption{
+		Key:    v,
+		Method: k,
 	}
 	switch d.section {
 	case sectionMedia:
-		d.m.Attributes = addAttribute(d.m.Attributes, key, value)
+		d.m.Encryption = e
 	default:
-		m.Attributes = addAttribute(m.Attributes, key, value)
+		m.Encryption = e
+	}
+	return nil
+}
+
+func (d *Decoder) decodeBandwidth(m *Message) error {
+	k, v := d.decodeKV()
+	if len(v) == 0 {
+		msg := "no value specified"
+		err := newSectionDecodeError(d.section, msg)
+		return errors.Wrap(err, "failed to decode bandwidth")
+	}
+	var (
+		t   BandwidthType
+		n   int
+		err error
+	)
+	switch bandWidthType := BandwidthType(k); bandWidthType {
+	case BandwidthApplicationSpecific, BandwidthConferenceTotal:
+		t = bandWidthType
+	default:
+		msg := fmt.Sprintf("bad bandwidth type %s", k)
+		err = newSectionDecodeError(d.section, msg)
+		return errors.Wrap(err, "failed to decode bandwidth")
+	}
+	if n, err = strconv.Atoi(v); err != nil {
+		return errors.Wrap(err, "failed to convert decode bandwidth")
+	}
+	if d.section == sectionMedia {
+		d.m.BandwidthType = t
+		d.m.Bandwidth = n
+	} else {
+		m.BandwidthType = t
+		m.Bandwidth = n
 	}
 	return nil
 }
@@ -348,6 +437,20 @@ func (d *Decoder) decodeField(m *Message) error {
 		return d.decodeVersion(m)
 	case TypeAttribute:
 		return d.decodeAttribute(m)
+	case TypeSessionName:
+		return d.decodeSessionName(m)
+	case TypeSessionInformation:
+		return d.decodeSessionInfo(m)
+	case TypeEmail:
+		return d.decodeEmail(m)
+	case TypePhone:
+		return d.decodePhone(m)
+	case TypeURI:
+		return d.decodeURI(m)
+	case TypeEncryptionKey:
+		return d.decodeEncryption(m)
+	case TypeBandwidth:
+		return d.decodeBandwidth(m)
 	}
 	// TODO: uncomment when all decoder methods implemented
 	// panic("unexpected field")
@@ -368,14 +471,12 @@ func (d *Decoder) decodeSession(m *Message) error {
 		switch d.t {
 		case TypeTiming:
 			d.pos--
-			//log.Warn("rewinding, switching to T")
 			if err := d.decodeTiming(m); err != nil {
 				return errors.Wrap(err, "failed to decode timing")
 			}
 		case TypeMediaDescription:
 			d.pos--
 			oldPosition := d.sPos
-			//log.Warn("rewinding, switching to M")
 			if err := d.decodeMedia(m); err != nil {
 				return errors.Wrap(err, "failed to decode media")
 			}

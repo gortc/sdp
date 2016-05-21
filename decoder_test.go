@@ -10,7 +10,7 @@ import (
 
 func TestDecoder_Decode(t *testing.T) {
 	m := new(Message)
-	tData := loadData(t, "sdp_session_ex1")
+	tData := loadData(t, "sdp_session_ex_full")
 	session, err := DecodeSession(tData, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -35,5 +35,20 @@ func TestDecoder_Decode(t *testing.T) {
 		log.Println(m.Medias[1].Attributes)
 		log.Println(m.Medias[0].Attributes)
 		t.Error("rtpmap", m.Medias[1].Attributes.Value("rtpmap"))
+	}
+	if m.Bandwidth != 154798 {
+		t.Error("bandwidth bad value", m.Bandwidth)
+	}
+	if m.BandwidthType != BandwidthConferenceTotal {
+		t.Error("bandwidth bad type", m.BandwidthType)
+	}
+	expectedEncryption := Encryption{"clear", "ab8c4df8b8f4as8v8iuy8re"}
+	if m.Encryption != expectedEncryption {
+		t.Error("bad encryption", m.Encryption, "!=", expectedEncryption)
+	}
+	expectedEncryption = Encryption{Method: "prompt"}
+	if m.Medias[1].Encryption != expectedEncryption {
+		t.Error("bad encryption",
+			m.Medias[1].Encryption, "!=", expectedEncryption)
 	}
 }

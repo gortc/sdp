@@ -67,7 +67,7 @@ Media description, if present
 - [ ] r (repeat)
 - [ ] z (time zone adjustments)
 - [ ] k (encryption key)
-- [ ] a (zero or more session attribute lines)
+- [x] a (zero or more session attribute lines)
 
 ### TODO:
 - [x] Encoding

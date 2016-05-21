@@ -72,6 +72,7 @@ type Decoder struct {
 	l       Line
 	section section
 	sPos    int
+	m       Media
 }
 
 func (d *Decoder) next() bool {
@@ -144,18 +145,14 @@ var orderingMedia = ordering{
 	TypeAttribute,
 }
 
-type UnexpectedFieldError struct {
-	Type  Type
-	Cause string
-}
-
 // isExpected determines if t is expected on pos in s section and returns nil,
 // if it is expected and DecodeError if not.
 func isExpected(t Type, s section, pos int) error {
-	logger := log.WithField("t", t).WithFields(log.Fields{
-		"s": s,
-		"p": pos,
-	})
+	//logger := log.WithField("t", t).WithFields(log.Fields{
+	//	"s": s,
+	//	"p": pos,
+	//})
+	//logger.Printf("isExpected(%s, %s, %d)", t, s, pos)
 	o := getOrdering(s)
 	if len(o) <= pos {
 		msg := fmt.Sprintf("position %d is out of range (>%d)",
@@ -166,14 +163,14 @@ func isExpected(t Type, s section, pos int) error {
 	}
 	for _, expected := range o[pos:] {
 		if expected == t {
-			logger.Printf("%s is expected", expected)
+			//logger.Printf("%s is expected", expected)
 			return nil
 		}
 		if isOptional(expected) {
 			continue
 		}
 		if isZeroOrMore(expected) {
-			logger.Printf("%s is not necessary", expected)
+			//logger.Printf("%s is not necessary", expected)
 			continue
 		}
 	}
@@ -182,24 +179,32 @@ func isExpected(t Type, s section, pos int) error {
 	switch s {
 	case sectionSession:
 		if pos < orderingAfterTime && isExpected(t, sectionTime, 0) == nil {
-			logger.Printf("s->t")
+			//logger.Printf("s->t")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			logger.Printf("s->m")
+			//logger.Printf("s->m")
 			return nil
 		}
 	case sectionTime:
 		if isExpected(t, sectionSession, orderingAfterTime) == nil {
-			logger.Printf("t->s")
+			//logger.Printf("t->s")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			logger.Printf("t->m")
+			//logger.Printf("t->m")
+			return nil
+		}
+	case sectionMedia:
+		if isExpected(t, sectionMedia, 0) == nil {
+			//logger.Printf("m->m")
 			return nil
 		}
 	}
-	err := newSectionDecodeError(s, "no matches in ordering array")
+	msg := fmt.Sprintf("no matches in ordering array at %s[%d]",
+		s, pos,
+	)
+	err := newSectionDecodeError(s, msg)
 	return errors.Wrapf(err, "field %s is unexpected", t)
 }
 
@@ -244,7 +249,7 @@ func newSectionDecodeError(s section, m string) DecodeError {
 }
 
 func (d *Decoder) decodeTiming(m *Message) error {
-	log.Println("decoding timing")
+	//log.Println("decoding timing")
 	d.sPos = 0
 	d.section = sectionTime
 	for d.next() {
@@ -259,7 +264,7 @@ func (d *Decoder) decodeTiming(m *Message) error {
 			return d.decodeField(m)
 		default:
 			// possible switch to Media or Session description
-			log.Warn("rewinding, out of timing")
+			//log.Warn("rewinding, out of timing")
 			d.pos--
 			return nil
 		}
@@ -270,9 +275,14 @@ func (d *Decoder) decodeTiming(m *Message) error {
 func (d *Decoder) decodeMedia(m *Message) error {
 	d.sPos = 0
 	d.section = sectionMedia
+	d.m = Media{}
 	for d.next() {
 		if err := isExpected(d.t, d.section, d.sPos); err != nil {
 			return errors.Wrap(err, "decode failed")
+		}
+		if d.t == TypeMediaDescription && d.sPos != 0 {
+			d.pos--
+			break
 		}
 		if !isZeroOrMore(d.t) {
 			d.sPos++
@@ -280,10 +290,8 @@ func (d *Decoder) decodeMedia(m *Message) error {
 		if err := d.decodeField(m); err != nil {
 			return errors.Wrap(err, "failed to decode field")
 		}
-		if d.t == TypeMediaDescription {
-			d.sPos = 0
-		}
 	}
+	m.Medias = append(m.Medias, d.m)
 	return nil
 }
 
@@ -296,11 +304,52 @@ func (d *Decoder) decodeVersion(m *Message) error {
 	return nil
 }
 
+func addAttribute(a Attributes, k, v []byte) Attributes {
+	if a == nil {
+		a = make(Attributes)
+	}
+	if len(v) == 0 {
+		v = append(v, "true"...)
+	}
+	a[string(k)] = string(v)
+	return a
+}
+
+func (d *Decoder) decodeAttribute(m *Message) error {
+	//log.Println("DECODING ATTRIBUTE")
+	var (
+		key     []byte
+		value   []byte
+		isValue bool
+	)
+	for _, v := range d.v {
+		if v == ':' && !isValue {
+			isValue = true
+			continue
+		}
+		if isValue {
+			value = append(value, v)
+		} else {
+			key = append(key, v)
+		}
+	}
+	switch d.section {
+	case sectionMedia:
+		d.m.Attributes = addAttribute(d.m.Attributes, key, value)
+	default:
+		m.Attributes = addAttribute(m.Attributes, key, value)
+	}
+	return nil
+}
+
 func (d *Decoder) decodeField(m *Message) error {
 	switch d.t {
 	case TypeProtocolVersion:
 		return d.decodeVersion(m)
+	case TypeAttribute:
+		return d.decodeAttribute(m)
 	}
+	// TODO: uncomment when all decoder methods implemented
 	// panic("unexpected field")
 	log.Warnln("skipping decoding of", d.t)
 	return nil
@@ -319,16 +368,19 @@ func (d *Decoder) decodeSession(m *Message) error {
 		switch d.t {
 		case TypeTiming:
 			d.pos--
-			log.Warn("rewinding, switching to T")
+			//log.Warn("rewinding, switching to T")
 			if err := d.decodeTiming(m); err != nil {
 				return errors.Wrap(err, "failed to decode timing")
 			}
 		case TypeMediaDescription:
 			d.pos--
-			log.Warn("rewinding, switching to M")
+			oldPosition := d.sPos
+			//log.Warn("rewinding, switching to M")
 			if err := d.decodeMedia(m); err != nil {
 				return errors.Wrap(err, "failed to decode media")
 			}
+			d.sPos = oldPosition
+			d.section = sectionSession
 		default:
 			if err := d.decodeField(m); err != nil {
 				return errors.Wrap(err, "failed to decode field")

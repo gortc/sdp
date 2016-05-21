@@ -52,3 +52,24 @@ func TestDecoder_Decode(t *testing.T) {
 			m.Medias[1].Encryption, "!=", expectedEncryption)
 	}
 }
+
+func BenchmarkDecoder_Decode(b *testing.B) {
+	m := new(Message)
+	b.ReportAllocs()
+	tData := loadData(b, "sdp_session_ex_full")
+	session, err := DecodeSession(tData, nil)
+	if err != nil {
+		b.Fatal(err)
+	}
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		decoder := Decoder{
+			s: session,
+		}
+		if err := decoder.Decode(m); err != nil {
+			errors.Fprint(os.Stderr, err)
+			b.Error(err)
+		}
+		m.Medias = m.Medias[:0]
+	}
+}

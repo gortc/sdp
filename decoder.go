@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )
 
@@ -454,7 +453,7 @@ func (d *Decoder) decodeField(m *Message) error {
 	}
 	// TODO: uncomment when all decoder methods implemented
 	// panic("unexpected field")
-	log.Warnln("skipping decoding of", d.t)
+	//log.Warnln("skipping decoding of", d.t)
 	return nil
 }
 

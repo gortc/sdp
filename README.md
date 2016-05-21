@@ -72,8 +72,8 @@ Media description, if present
 ### TODO:
 - [x] Encoding
 - [x] Parsing
-- [ ] Decoding
-- [ ] High level encoding/decoding for Session and Media descriptions.
+- [ ] High level encoding
+- [ ] High level decoding
 
 ### Possible optimizations
 There are comments `// ALLOCATIONS: suboptimal.` and `// CPU: suboptimal. `

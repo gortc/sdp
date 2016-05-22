@@ -5,6 +5,8 @@ import (
 	"os"
 	"testing"
 
+	"net"
+
 	"github.com/pkg/errors"
 )
 
@@ -56,6 +58,15 @@ func TestDecoder_Decode(t *testing.T) {
 	}
 	if m.End != NTPToTime(2873404696) {
 		t.Error(m.End, "!=", NTPToTime(2873404696))
+	}
+	cExpected := ConnectionData{
+		IP:          net.ParseIP("224.2.17.12"),
+		TTL:         127,
+		NetworkType: "IN",
+		AddressType: "IP4",
+	}
+	if !cExpected.Equal(m.Connection) {
+		t.Error(cExpected, "!=", m.Connection)
 	}
 }
 

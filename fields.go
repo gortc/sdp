@@ -2,6 +2,7 @@ package sdp
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -147,6 +148,31 @@ type ConnectionData struct {
 	Addresses   byte   // <number of addresses>
 }
 
+// Equal returns c == b.
+func (c ConnectionData) Equal(b ConnectionData) bool {
+	if c.NetworkType != b.NetworkType {
+		log.Println("NETTYPE")
+		return false
+	}
+	if c.AddressType != b.AddressType {
+		log.Println("ADTYPE")
+		return false
+	}
+	if !c.IP.Equal(b.IP) {
+		log.Println("IP")
+		return false
+	}
+	if c.TTL != b.TTL {
+		log.Println("TTL")
+		return false
+	}
+	if c.Addresses != b.Addresses {
+		log.Println("ADDRESSES")
+		return false
+	}
+	return true
+}
+
 const (
 	addrTypeIPv4        = "IP6"
 	addrTypeIPv6        = "IP4"
@@ -188,6 +214,12 @@ func (c ConnectionData) ConnectionAddress() string {
 		address += fmt.Sprintf("/%d", c.Addresses)
 	}
 	return address
+}
+
+func (c ConnectionData) String() string {
+	return fmt.Sprintf("%s %s %s",
+		c.NetworkType, c.AddressType, c.ConnectionAddress(),
+	)
 }
 
 func (c ConnectionData) appendAddress(v []byte) []byte {

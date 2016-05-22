@@ -5,6 +5,9 @@ import (
 	"strconv"
 	"time"
 
+	"net"
+	"unsafe"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )
@@ -88,6 +91,13 @@ type Decoder struct {
 	m       Media
 }
 
+func (d *Decoder) newFieldError(msg string) DecodeError {
+	return DecodeError{
+		Place:  fmt.Sprintf("%s/%s at line %d", d.section, d.t, d.pos),
+		Reason: msg,
+	}
+}
+
 func (d *Decoder) next() bool {
 	//time.Sleep(time.Millisecond * 100)
 	if d.pos >= len(d.s) {
@@ -161,7 +171,6 @@ var orderingMedia = ordering{
 // isExpected determines if t is expected on pos in s section and returns nil,
 // if it is expected and DecodeError if not.
 func isExpected(t Type, s section, pos int) error {
-	time.Sleep(time.Millisecond * 50)
 	logger := log.WithField("t", t).WithFields(log.Fields{
 		"s": s,
 		"p": pos,
@@ -404,6 +413,108 @@ func (d *Decoder) decodeEncryption(m *Message) error {
 	return nil
 }
 
+func decodeIP(dst net.IP, v []byte) (net.IP, error) {
+	// ALLOCATIONS: suboptimal.
+	return net.ParseIP(string(v)), nil
+}
+
+func decodeByte(dst []byte) (byte, error) {
+	// ALLOCATIONS: suboptimal.
+	n, err := strconv.ParseInt(string(dst), 10, 16)
+	if err != nil {
+		return 0, err
+	}
+	return byte(n), err
+}
+
+func (d *Decoder) decodeConnectionData(m *Message) error {
+	// c=<nettype> <addrtype> <connection-address>
+	var (
+		netType           []byte
+		addressType       []byte
+		connectionAddress []byte
+		subField          int
+		err               error
+	)
+	for _, v := range d.v {
+		if v == ' ' {
+			subField++
+			continue
+		}
+		switch subField {
+		case 0:
+			netType = append(netType, v)
+		case 1:
+			addressType = append(addressType, v)
+		case 2:
+			connectionAddress = append(connectionAddress, v)
+		default:
+			err = d.newFieldError("unexpected subfield count")
+			return errors.Wrap(err, "failed to decode connection data")
+		}
+	}
+	if len(netType) == 0 {
+		err = d.newFieldError("nettype is empty")
+		return errors.Wrap(err, "failed to decode connection data")
+	}
+	if len(addressType) == 0 {
+		err = d.newFieldError("addrtype is empty")
+		return errors.Wrap(err, "failed to decode connection data")
+	}
+	if len(connectionAddress) == 0 {
+		err := d.newFieldError("connection-address is empty")
+		return errors.Wrap(err, "failed to decode connection data")
+	}
+	m.Connection.AddressType = string(addressType)
+	m.Connection.NetworkType = string(netType)
+
+	// decoding address
+	// <base multicast address>[/<ttl>]/<number of addresses>
+	var (
+		base   []byte
+		first  []byte
+		second []byte
+	)
+	subField = 0
+	for _, v := range connectionAddress {
+		if v == '/' {
+			subField++
+			continue
+		}
+		switch subField {
+		case 0:
+			base = append(base, v)
+		case 1:
+			first = append(first, v)
+		case 3:
+			second = append(second, v)
+		default:
+			err = d.newFieldError("unexpected fourth element in address")
+			return errors.Wrap(err, "failed to decode connection data")
+		}
+	}
+	m.Connection.IP, err = decodeIP(m.Connection.IP, base)
+	if err != nil {
+		return errors.Wrap(err, "failed to decode connection data")
+	}
+	if len(second) > 0 {
+		m.Connection.TTL, err = decodeByte(first)
+		if err != nil {
+			return errors.Wrap(err, "failed to decode connection data")
+		}
+		m.Connection.Addresses, err = decodeByte(second)
+		if err != nil {
+			return errors.Wrap(err, "failed to decode connection data")
+		}
+	} else {
+		m.Connection.Addresses, err = decodeByte(first)
+		if err != nil {
+			return errors.Wrap(err, "failed to decode connection data")
+		}
+	}
+	return nil
+}
+
 func (d *Decoder) decodeBandwidth(m *Message) error {
 	k, v := d.decodeKV()
 	if len(v) == 0 {
@@ -499,6 +610,8 @@ func (d *Decoder) decodeField(m *Message) error {
 		return d.decodeBandwidth(m)
 	case TypeTiming:
 		return d.decodeTimingField(m)
+	case TypeConnectionData:
+		return d.decodeConnectionData(m)
 	}
 	// TODO: uncomment when all decoder methods implemented
 	// panic("unexpected field")
@@ -545,4 +658,12 @@ func (d *Decoder) decodeSession(m *Message) error {
 // Decode message from session.
 func (d *Decoder) Decode(m *Message) error {
 	return d.decodeSession(m)
+}
+
+// b2s converts byte slice to a string without memory allocation.
+//
+// Note it may break if string and/or slice header will change
+// in the future go versions.
+func b2s(b []byte) string {
+	return *(*string)(unsafe.Pointer(&b))
 }

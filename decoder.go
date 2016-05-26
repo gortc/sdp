@@ -64,7 +64,7 @@ const blank = ""
 // Attribute returns string v.
 func (m Message) Attribute(attribute string) string {
 	if len(m.Attributes) > 0 {
-		m.Attributes.Value(attribute)
+		return m.Attributes.Value(attribute)
 	}
 	return blank
 }
@@ -437,6 +437,10 @@ func decodeByte(dst []byte) (byte, error) {
 	return byte(n), err
 }
 
+func isIPv4(ip net.IP) bool {
+	return ip.To4() != nil
+}
+
 func (d *Decoder) decodeConnectionData(m *Message) error {
 	// c=<nettype> <addrtype> <connection-address>
 	var (
@@ -507,7 +511,12 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to decode connection data")
 	}
+	isV4 := isIPv4(m.Connection.IP)
 	if len(second) > 0 {
+		if !isV4 {
+			err := d.newFieldError("unexpected TTL for IPv6")
+			return errors.Wrap(err, "failed to decode connection data")
+		}
 		m.Connection.TTL, err = decodeByte(first)
 		if err != nil {
 			return errors.Wrap(err, "failed to decode connection data")
@@ -516,10 +525,17 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to decode connection data")
 		}
-	} else {
-		m.Connection.Addresses, err = decodeByte(first)
+	} else if len(first) > 0 {
+		if isV4 {
+			m.Connection.TTL, err = decodeByte(first)
+		} else {
+			m.Connection.Addresses, err = decodeByte(second)
+		}
 		if err != nil {
-			return errors.Wrap(err, "failed to decode connection data")
+			msg := fmt.Sprintf("bad connection data <%s> at <%s>",
+				b2s(first), b2s(connectionAddress),
+			)
+			return errors.Wrap(err, msg)
 		}
 	}
 	return nil
@@ -625,7 +641,7 @@ func (d *Decoder) decodeField(m *Message) error {
 	}
 	// TODO: uncomment when all decoder methods implemented
 	// panic("unexpected field")
-	//log.Warnln("skipping decoding of", d.t)
+	log.Warnln("skipping decoding of", d.t)
 	return nil
 }
 

@@ -13,13 +13,24 @@ import (
 )
 
 // Attributes is set of k:v.
-type Attributes map[string]string
+type Attributes map[string][]string
 
-// Value returns string v.
-func (a Attributes) Value(attribute string) string { return a[attribute] }
+// Value returns value of first attribute.
+func (a Attributes) Value(attribute string) string {
+	if len(a[attribute]) == 0 {
+		return blank
+	}
+	return a[attribute][0]
+}
+
+func (a Attributes) Values(attribute string) []string {
+	return a[attribute]
+}
 
 // Flag returns true if set.
-func (a Attributes) Flag(flag string) bool { return len(a[flag]) > 0 }
+func (a Attributes) Flag(flag string) bool {
+	return a.Value(flag) != blank
+}
 
 // Message is top level abstraction.
 type Message struct {
@@ -55,7 +66,6 @@ func (m Message) Attribute(attribute string) string {
 	if len(m.Attributes) > 0 {
 		m.Attributes.Value(attribute)
 	}
-
 	return blank
 }
 
@@ -354,7 +364,7 @@ func addAttribute(a Attributes, k, v string) Attributes {
 	if len(v) == 0 {
 		v = "true"
 	}
-	a[k] = v
+	a[k] = append(a[k], v)
 	return a
 }
 

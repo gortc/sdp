@@ -8,6 +8,7 @@ import (
 	"net"
 
 	"github.com/pkg/errors"
+	"fmt"
 )
 
 func TestDecoder_Decode(t *testing.T) {
@@ -69,6 +70,30 @@ func TestDecoder_Decode(t *testing.T) {
 		t.Error(cExpected, "!=", m.Connection)
 	}
 }
+
+func TestDecoder_WebRTC1(t *testing.T) {
+	m := new(Message)
+	tData := loadData(t, "spd_session_ex_webrtc1")
+	session, err := DecodeSession(tData, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, l := range session {
+		fmt.Println(l)
+	}
+	decoder := Decoder{
+		s: session,
+	}
+	if err := decoder.Decode(m); err != nil {
+		errors.Fprint(os.Stderr, err)
+		t.Error(err)
+	}
+	if m.Version != 0 {
+		t.Error("wat", m.Version)
+	}
+}
+
+
 
 func BenchmarkDecoder_Decode(b *testing.B) {
 	m := new(Message)

@@ -117,7 +117,7 @@ func (t Type) appendTo(b []byte) []byte {
 func (t Type) String() string {
 	switch t {
 	case TypeAttribute:
-		return "attributes"
+		return "attribute"
 	case TypePhone:
 		return "phone"
 	case TypeEmail:
@@ -145,7 +145,7 @@ func (t Type) String() string {
 	case TypeEncryptionKey:
 		return "encryption keys"
 	case TypeMediaDescription:
-		return "media descriptions"
+		return "media description"
 	default:
 		// falling back to raw value.
 		return string(rune(t))

@@ -151,7 +151,7 @@ func TestLine_String(t *testing.T) {
 	}{
 		{
 			Line{TypeAttribute, []byte("value")},
-			"attributes: value",
+			"attribute: value",
 		},
 		{
 			Line{'б', []byte("значение")}, // unicode

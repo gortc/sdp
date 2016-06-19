@@ -465,6 +465,7 @@ func isIPv4(ip net.IP) bool {
 }
 
 func (d *Decoder) decodeConnectionData(m *Message) error {
+	// TODO: simplify.
 	// c=<nettype> <addrtype> <connection-address>
 	var (
 		netType           []byte
@@ -523,7 +524,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 			base = append(base, v)
 		case 1:
 			first = append(first, v)
-		case 3:
+		case 2:
 			second = append(second, v)
 		default:
 			err = d.newFieldError("unexpected fourth element in address")

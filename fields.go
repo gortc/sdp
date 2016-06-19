@@ -2,7 +2,6 @@ package sdp
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -151,23 +150,18 @@ type ConnectionData struct {
 // Equal returns c == b.
 func (c ConnectionData) Equal(b ConnectionData) bool {
 	if c.NetworkType != b.NetworkType {
-		log.Println("NETTYPE")
 		return false
 	}
 	if c.AddressType != b.AddressType {
-		log.Println("ADTYPE")
 		return false
 	}
 	if !c.IP.Equal(b.IP) {
-		log.Println("IP")
 		return false
 	}
 	if c.TTL != b.TTL {
-		log.Println("TTL")
 		return false
 	}
 	if c.Addresses != b.Addresses {
-		log.Println("ADDRESSES")
 		return false
 	}
 	return true
@@ -252,6 +246,29 @@ func (o Origin) getNetworkType() string {
 
 func (o Origin) getAddressType() string {
 	return getAddressType(o.IP, o.AddressType)
+}
+
+// Equal returns b == o.
+func (o Origin) Equal(b Origin) bool {
+	if o.Username != b.Username {
+		return false
+	}
+	if o.SessionID != b.SessionID {
+		return false
+	}
+	if o.SessionVersion != b.SessionVersion {
+		return false
+	}
+	if o.NetworkType != b.NetworkType {
+		return false
+	}
+	if o.AddressType != b.AddressType {
+		return false
+	}
+	if !o.IP.Equal(b.IP) {
+		return false
+	}
+	return true
 }
 
 // AddOrigin appends Origin field to Session.

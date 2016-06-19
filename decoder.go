@@ -1,11 +1,12 @@
 package sdp
 
 import (
+	"bytes"
 	"fmt"
+	"io"
+	"net"
 	"strconv"
 	"time"
-
-	"net"
 	"unsafe"
 
 	log "github.com/Sirupsen/logrus"
@@ -47,8 +48,32 @@ type Message struct {
 	Encryption    Encryption
 	Bandwidth     int
 	BandwidthType BandwidthType
-	Start         time.Time
-	End           time.Time
+	Timing        []Timing
+}
+
+// Timing wraps "repeat times" and 	"timing" information.
+type Timing struct {
+	Start   time.Time
+	End     time.Time
+	Repeat  time.Duration
+	Active  time.Duration
+	Offsets []time.Duration
+}
+
+// Start returns start of session.
+func (m Message) Start() time.Time {
+	if len(m.Timing) == 0 {
+		return time.Time{}
+	}
+	return m.Timing[0].Start
+}
+
+// End returns end of session.
+func (m Message) End() time.Time {
+	if len(m.Timing) == 0 {
+		return time.Time{}
+	}
+	return m.Timing[0].End
 }
 
 // Flag returns true if set.
@@ -181,30 +206,26 @@ var orderingMedia = ordering{
 // isExpected determines if t is expected on pos in s section and returns nil,
 // if it is expected and DecodeError if not.
 func isExpected(t Type, s section, pos int) error {
-	logger := log.WithField("t", t).WithFields(log.Fields{
-		"s": s,
-		"p": pos,
-	})
-	logger.Printf("isExpected(%s, %s, %d)", t, s, pos)
+	//logger := log.WithField("t", t).WithFields(log.Fields{
+	//	"s": s,
+	//	"p": pos,
+	//})
+	//logger.Printf("isExpected(%s, %s, %d)", t, s, pos)
+
 	o := getOrdering(s)
-	if len(o) <= pos {
-		msg := fmt.Sprintf("position %d is out of range (>%d)",
-			pos, len(o),
-		)
-		err := newSectionDecodeError(s, msg)
-		return errors.Wrapf(err, "field %s is unexpected", t)
-	}
-	for _, expected := range o[pos:] {
-		if expected == t {
-			logger.Printf("%s is expected", expected)
-			return nil
-		}
-		if isOptional(expected) {
-			continue
-		}
-		if isZeroOrMore(expected) {
-			logger.Printf("%s is not necessary", expected)
-			continue
+	if len(o) > pos {
+		for _, expected := range o[pos:] {
+			if expected == t {
+				//logger.Printf("%s is expected", expected)
+				return nil
+			}
+			if isOptional(expected) {
+				continue
+			}
+			if isZeroOrMore(expected) {
+				//logger.Printf("%s is not necessary", expected)
+				continue
+			}
 		}
 	}
 
@@ -212,25 +233,25 @@ func isExpected(t Type, s section, pos int) error {
 	switch s {
 	case sectionSession:
 		if pos < orderingAfterTime && isExpected(t, sectionTime, 0) == nil {
-			logger.Printf("s->t")
+			//logger.Printf("s->t")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			logger.Printf("s->m")
+			//logger.Printf("s->m")
 			return nil
 		}
 	case sectionTime:
 		if isExpected(t, sectionSession, orderingAfterTime) == nil {
-			logger.Printf("t->s")
+			//logger.Printf("t->s")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			logger.Printf("t->m")
+			//logger.Printf("t->m")
 			return nil
 		}
 	case sectionMedia:
 		if pos != 0 && isExpected(t, sectionMedia, 0) == nil {
-			logger.Printf("m->m")
+			//logger.Printf("m->m")
 			return nil
 		}
 	}
@@ -302,7 +323,7 @@ func (d *Decoder) decodeKV() (string, string) {
 }
 
 func (d *Decoder) decodeTiming(m *Message) error {
-	log.Println("decoding timing")
+	//log.Println("decoding timing")
 	d.sPos = 0
 	d.section = sectionTime
 	for d.next() {
@@ -314,7 +335,9 @@ func (d *Decoder) decodeTiming(m *Message) error {
 		}
 		switch d.t {
 		case TypeTiming, TypeRepeatTimes:
-			return d.decodeField(m)
+			if err := d.decodeField(m); err != nil {
+				return errors.Wrap(err, "decode failed")
+			}
 		default:
 			// possible switch to Media or Session description
 			d.pos--
@@ -325,7 +348,7 @@ func (d *Decoder) decodeTiming(m *Message) error {
 }
 
 func (d *Decoder) decodeMedia(m *Message) error {
-	log.Println("decoding media")
+	//log.Println("decoding media")
 	d.sPos = 0
 	d.section = sectionMedia
 	d.m = Media{}
@@ -609,8 +632,140 @@ func (d *Decoder) decodeTimingField(m *Message) error {
 	if ntpEnd, err = parseNTP(endV); err != nil {
 		return errors.Wrap(err, "failed to parse end time")
 	}
-	m.Start = NTPToTime(ntpStart)
-	m.End = NTPToTime(ntpEnd)
+	t := Timing{}
+	t.Start = NTPToTime(ntpStart)
+	t.End = NTPToTime(ntpEnd)
+	m.Timing = append(m.Timing, t)
+	return nil
+}
+
+const (
+	fieldsDelimiter = ' '
+)
+
+func decodeString(v []byte, s *string) error {
+	*s = b2s(v)
+	return nil
+}
+
+func decodeInt(v []byte, i *int) error {
+	var err error
+	*i, err = strconv.Atoi(b2s(v))
+	return err
+}
+
+func subfields(v []byte) [][]byte {
+	return bytes.Split(v, []byte{fieldsDelimiter})
+}
+
+func (d *Decoder) subfields() [][]byte {
+	return subfields(d.v)
+}
+
+func (d *Decoder) decodeOrigin(m *Message) error {
+	// o=0<username> 1<sess-id> 2<sess-version> 3<nettype> 4<addrtype>
+	// 5<unicast-address>
+	// ALLOCATIONS: suboptimal
+	// CPU: suboptimal
+	var (
+		err error
+	)
+	p := d.subfields()
+	if len(p) != 6 {
+		msg := fmt.Sprintf("unexpected subfields count %d != %d", len(p), 6)
+		err = newSectionDecodeError(d.section, msg)
+		return errors.Wrap(err, "failed to decode origin")
+	}
+	o := m.Origin
+	if err = decodeString(p[0], &o.Username); err != nil {
+		return errors.Wrap(err, "failed to decode username")
+	}
+	if err = decodeInt(p[1], &o.SessionID); err != nil {
+		return errors.Wrap(err, "failed to decode sess-id")
+	}
+	if err = decodeInt(p[2], &o.SessionVersion); err != nil {
+		return errors.Wrap(err, "failed to decode sess-id")
+	}
+	if err = decodeString(p[3], &o.NetworkType); err != nil {
+		return errors.Wrap(err, "failed to decode net-type")
+	}
+	if err = decodeString(p[4], &o.AddressType); err != nil {
+		return errors.Wrap(err, "failed to decode net-type")
+	}
+	if o.IP, err = decodeIP(o.IP, p[5]); err != nil {
+		return errors.Wrap(err, "failed to decode IP")
+	}
+	m.Origin = o
+	return nil
+}
+
+func decodeInterval(b []byte, v *time.Duration) error {
+	if len(b) == 1 && b[0] == '0' {
+		*v = 0
+		return nil
+	}
+	var (
+		unit            time.Duration
+		noUnitSpecified bool
+		val             int
+	)
+	switch b[len(b)-1] {
+	case 'd':
+		unit = time.Hour * 24
+	case 'h':
+		unit = time.Hour
+	case 'm':
+		unit = time.Minute
+	case 's':
+		unit = time.Second
+	default:
+		unit = time.Second
+		noUnitSpecified = true
+	}
+	if !noUnitSpecified {
+		if len(b) < 2 {
+			err := io.ErrUnexpectedEOF
+			return errors.Wrap(err, "unit without value is invalid duration")
+		}
+		b = b[:len(b)-1]
+	}
+	if err := decodeInt(b, &val); err != nil {
+		return errors.Wrap(err, "unable to decode value")
+	}
+	*v = time.Duration(val) * unit
+	return nil
+}
+
+func shouldBePositive(i int) {
+	if i <= 0 {
+		panic("value should be positive")
+	}
+}
+
+func (d *Decoder) decodeRepeatTimes(m *Message) error {
+	// r=0<repeat interval> 1<active duration> 2<offsets from start-time>
+	shouldBePositive(len(m.Timing)) // should be newer blank
+	p := d.subfields()
+	var err error
+	if len(p) < 3 {
+		msg := fmt.Sprintf("unexpected subfields count %d < 3", len(p))
+		err = newSectionDecodeError(d.section, msg)
+		return errors.Wrap(err, "failed to decode repeat")
+	}
+	t := m.Timing[len(m.Timing)-1]
+	if err = decodeInterval(p[0], &t.Repeat); err != nil {
+		return errors.Wrap(err, "failed to decode repeat interval")
+	}
+	if err = decodeInterval(p[1], &t.Active); err != nil {
+		return errors.Wrap(err, "failed to decode active duration")
+	}
+	var dd time.Duration
+	for i, pp := range p[2:] {
+		if err = decodeInterval(pp, &dd); err != nil {
+			return errors.Wrapf(err, "failed to decode offset %d", i)
+		}
+		t.Offsets = append(t.Offsets, dd)
+	}
 	return nil
 }
 
@@ -638,6 +793,10 @@ func (d *Decoder) decodeField(m *Message) error {
 		return d.decodeTimingField(m)
 	case TypeConnectionData:
 		return d.decodeConnectionData(m)
+	case TypeOrigin:
+		return d.decodeOrigin(m)
+	case TypeRepeatTimes:
+		return d.decodeRepeatTimes(m)
 	}
 	// TODO: uncomment when all decoder methods implemented
 	// panic("unexpected field")

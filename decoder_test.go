@@ -1,15 +1,41 @@
 package sdp
 
 import (
+	"fmt"
 	"log"
+	"net"
 	"os"
 	"testing"
-
-	"net"
+	"time"
 
 	"github.com/pkg/errors"
-	"fmt"
 )
+
+func TestDecodeInterval(t *testing.T) {
+	var dt = []struct {
+		in  string
+		out time.Duration
+	}{
+		{"0", 0},
+		{"7d", time.Hour * 24 * 7},
+		{"25h", time.Hour * 25},
+		{"63050", time.Second * 63050},
+		{"5", time.Second * 5},
+	}
+	for i, dtt := range dt {
+		var (
+			d time.Duration
+			v = []byte(dtt.in)
+		)
+		if err := decodeInterval(v, &d); err != nil {
+			t.Errorf("dtt[%d]: dec(%s) err: %s", i, dtt.in, err)
+			continue
+		}
+		if d != dtt.out {
+			t.Errorf("dtt[%d]: dec(%s) = %s != %s", i, dtt.in, d, dtt.out)
+		}
+	}
+}
 
 func TestDecoder_Decode(t *testing.T) {
 	m := new(Message)
@@ -23,7 +49,7 @@ func TestDecoder_Decode(t *testing.T) {
 	}
 	if err := decoder.Decode(m); err != nil {
 		errors.Fprint(os.Stderr, err)
-		t.Error(err)
+		t.Fatal(err)
 	}
 	if m.Version != 0 {
 		t.Error("wat", m.Version)
@@ -54,11 +80,11 @@ func TestDecoder_Decode(t *testing.T) {
 		t.Error("bad encryption",
 			m.Medias[1].Encryption, "!=", expectedEncryption)
 	}
-	if m.Start != NTPToTime(2873397496) {
-		t.Error(m.Start, "!=", NTPToTime(2873397496))
+	if m.Start() != NTPToTime(2873397496) {
+		t.Error(m.Start(), "!=", NTPToTime(2873397496))
 	}
-	if m.End != NTPToTime(2873404696) {
-		t.Error(m.End, "!=", NTPToTime(2873404696))
+	if m.End() != NTPToTime(2873404696) {
+		t.Error(m.End(), "!=", NTPToTime(2873404696))
 	}
 	cExpected := ConnectionData{
 		IP:          net.ParseIP("224.2.17.12"),
@@ -68,6 +94,18 @@ func TestDecoder_Decode(t *testing.T) {
 	}
 	if !cExpected.Equal(m.Connection) {
 		t.Error(cExpected, "!=", m.Connection)
+	}
+	// jdoe 2890844526 2890842807 IN IP4 10.47.16.5
+	oExpected := Origin{
+		IP:             net.ParseIP("10.47.16.5"),
+		SessionID:      2890844526,
+		SessionVersion: 2890842807,
+		NetworkType:    "IN",
+		AddressType:    "IP4",
+		Username:       "jdoe",
+	}
+	if !oExpected.Equal(m.Origin) {
+		t.Error(oExpected, "!=", m.Origin)
 	}
 }
 
@@ -92,8 +130,6 @@ func TestDecoder_WebRTC1(t *testing.T) {
 		t.Error("wat", m.Version)
 	}
 }
-
-
 
 func BenchmarkDecoder_Decode(b *testing.B) {
 	m := new(Message)

@@ -8,6 +8,7 @@ p=12345
 c=IN IP4 224.2.17.12/127
 b=CT:154798
 t=2873397496 2873404696
+r=7d 3600 0 25h
 k=clear:ab8c4df8b8f4as8v8iuy8re
 a=recvonly
 m=audio 49170 RTP/AVP 0

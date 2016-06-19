@@ -159,10 +159,10 @@ func TestSession_AddEncryptionKey(t *testing.T) {
 func TestSession_AddTimeZones(t *testing.T) {
 	s := new(Session).AddTimeZones(
 		TimeZone{NTPToTime(2882844526), -1 * time.Hour},
-		TimeZone{Adjustment: NTPToTime(2898848070)},
+		TimeZone{Start: NTPToTime(2898848070)},
 	).AddTimeZones(
 		TimeZone{NTPToTime(2898848070), time.Minute * 90},
-		TimeZone{Adjustment: NTPToTime(2898848070)},
+		TimeZone{Start: NTPToTime(2898848070)},
 	)
 	shouldDecodeExpS(t, s, "zones")
 }

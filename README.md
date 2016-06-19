@@ -52,6 +52,7 @@ Media description, if present
 - [x] z (time zone adjustments)
 - [x] k (encryption key)
 - [x] a (zero or more session attribute lines)
+- [x] m (media name and transport address)
 
 ### Decoding
 - [x] v (protocol version)
@@ -65,15 +66,19 @@ Media description, if present
 - [x] b (zero or more bandwidth information lines)
 - [x] t (time)
 - [x] r (repeat)
-- [ ] z (time zone adjustments)
+- [x] z (time zone adjustments)
 - [x] k (encryption key)
 - [x] a (zero or more session attribute lines)
+- [x] m (media name and transport address)
 
 ### TODO:
 - [x] Encoding
 - [x] Parsing
-- [ ] High level encoding
-- [ ] High level decoding
+- [x] High level encoding
+- [x] High level decoding
+- [ ] Examples
+- [ ] CI
+- [ ] Include to high-level CI
 
 ### Possible optimizations
 There are comments `// ALLOCATIONS: suboptimal.` and `// CPU: suboptimal. `

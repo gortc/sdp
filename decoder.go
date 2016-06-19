@@ -46,9 +46,10 @@ type Message struct {
 	Attributes    Attributes
 	Medias        Medias
 	Encryption    Encryption
-	Bandwidth     int
+	Bandwidths    map[BandwidthType]int
 	BandwidthType BandwidthType
 	Timing        []Timing
+	TZAdjustments []TimeZone
 }
 
 // Timing wraps "repeat times" and 	"timing" information.
@@ -103,15 +104,22 @@ type Encryption struct {
 	Key    string
 }
 
+func (e Encryption) Blank() bool {
+	return e.Equal(Encryption{})
+}
+
+func (e Encryption) Equal(b Encryption) bool {
+	return e == b
+}
+
 // Media is media description and attributes.
 type Media struct {
-	Title         string
-	Description   MediaDescription
-	Connection    ConnectionData
-	Attributes    Attributes
-	Encryption    Encryption
-	Bandwidth     int
-	BandwidthType BandwidthType
+	Title       string
+	Description MediaDescription
+	Connection  ConnectionData
+	Attributes  Attributes
+	Encryption  Encryption
+	Bandwidths  map[BandwidthType]int
 }
 
 // Decoder decodes session.
@@ -181,13 +189,13 @@ var orderingSession = ordering{
 	TypeEmail,
 	TypePhone,
 	TypeConnectionData,
-	TypeBandwidth, // 0 or more
-	TypeTimeZones, // ordering after time start
-	TypeEncryptionKey,
-	TypeAttribute, // 0 or more
+	TypeBandwidth,     // 0 or more
+	TypeTimeZones,     // *
+	TypeEncryptionKey, // ordering after time start
+	TypeAttribute,     // 0 or more
 }
 
-const orderingAfterTime = 9
+const orderingAfterTime = 10
 
 var orderingTime = ordering{
 	TypeTiming,
@@ -206,24 +214,24 @@ var orderingMedia = ordering{
 // isExpected determines if t is expected on pos in s section and returns nil,
 // if it is expected and DecodeError if not.
 func isExpected(t Type, s section, pos int) error {
-	//logger := log.WithField("t", t).WithFields(log.Fields{
-	//	"s": s,
-	//	"p": pos,
-	//})
-	//logger.Printf("isExpected(%s, %s, %d)", t, s, pos)
+	logger := log.WithField("t", t).WithFields(log.Fields{
+		"s": s,
+		"p": pos,
+	})
+	logger.Printf("isExpected(%s, %s, %d)", t, s, pos)
 
 	o := getOrdering(s)
 	if len(o) > pos {
 		for _, expected := range o[pos:] {
 			if expected == t {
-				//logger.Printf("%s is expected", expected)
+				logger.Printf("%s is expected", expected)
 				return nil
 			}
 			if isOptional(expected) {
 				continue
 			}
 			if isZeroOrMore(expected) {
-				//logger.Printf("%s is not necessary", expected)
+				logger.Printf("%s is not necessary", expected)
 				continue
 			}
 		}
@@ -233,25 +241,25 @@ func isExpected(t Type, s section, pos int) error {
 	switch s {
 	case sectionSession:
 		if pos < orderingAfterTime && isExpected(t, sectionTime, 0) == nil {
-			//logger.Printf("s->t")
+			logger.Printf("s->t")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			//logger.Printf("s->m")
+			logger.Printf("s->m")
 			return nil
 		}
 	case sectionTime:
 		if isExpected(t, sectionSession, orderingAfterTime) == nil {
-			//logger.Printf("t->s")
+			logger.Printf("t->s")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			//logger.Printf("t->m")
+			logger.Printf("t->m")
 			return nil
 		}
 	case sectionMedia:
 		if pos != 0 && isExpected(t, sectionMedia, 0) == nil {
-			//logger.Printf("m->m")
+			logger.Printf("m->m")
 			return nil
 		}
 	}
@@ -589,11 +597,15 @@ func (d *Decoder) decodeBandwidth(m *Message) error {
 		return errors.Wrap(err, "failed to convert decode bandwidth")
 	}
 	if d.section == sectionMedia {
-		d.m.BandwidthType = t
-		d.m.Bandwidth = n
+		if d.m.Bandwidths == nil {
+			d.m.Bandwidths = make(map[BandwidthType]int)
+		}
+		d.m.Bandwidths[t] = n
 	} else {
-		m.BandwidthType = t
-		m.Bandwidth = n
+		if m.Bandwidths == nil {
+			m.Bandwidths = make(map[BandwidthType]int)
+		}
+		m.Bandwidths[t] = n
 	}
 	return nil
 }
@@ -770,6 +782,65 @@ func (d *Decoder) decodeRepeatTimes(m *Message) error {
 	return nil
 }
 
+func (d *Decoder) decodeTimeZoneAdjustments(m *Message) error {
+	// z=<adjustment time> <offset> <adjustment time> <offset> ....
+	p := d.subfields()
+	var (
+		adjustment TimeZone
+		t          uint64
+		err        error
+	)
+	if len(p)%2 != 0 {
+		msg := fmt.Sprintf("unexpected subfields count %d", len(p))
+		err = newSectionDecodeError(d.section, msg)
+		return errors.Wrap(err, "failed to decode tz-adjustments")
+	}
+	for i := 0; i < len(p); i += 2 {
+		if t, err = parseNTP(p[i]); err != nil {
+			return errors.Wrap(err, "failed to decode adjustment start")
+		}
+		adjustment.Start = NTPToTime(t)
+		if err = decodeInterval(p[i+1], &adjustment.Offset); err != nil {
+			return errors.Wrap(err, "failed to decode offset")
+		}
+		m.TZAdjustments = append(m.TZAdjustments, adjustment)
+	}
+	return nil
+}
+
+func (d *Decoder) decodeMediaDescription(m *Message) error {
+	// m=0<media> 1<port> 2<proto> 3<fmt> ...
+	var (
+		desc MediaDescription
+		err  error
+	)
+	p := d.subfields()
+	if len(p) < 4 {
+		msg := fmt.Sprintf("unexpected subfields count %d < 4", len(p))
+		err = newSectionDecodeError(d.section, msg)
+		return errors.Wrap(err, "failed to decode media description")
+	}
+	if err = decodeString(p[0], &desc.Type); err != nil {
+		return errors.Wrap(err, "failed to decode media type")
+	}
+	// port: port/ports_number
+	pp := bytes.Split(p[1], []byte{'/'})
+	if err := decodeInt(pp[0], &desc.Port); err != nil {
+		return errors.Wrap(err, "failed to decode port")
+	}
+	if len(pp) > 1 {
+		if err := decodeInt(pp[1], &desc.PortsNumber); err != nil {
+			return errors.Wrap(err, "failed to decode ports number")
+		}
+	}
+	if err = decodeString(p[2], &desc.Protocol); err != nil {
+		return errors.Wrap(err, "failed to decode protocol")
+	}
+	desc.Format = string(bytes.Join(p[3:], []byte{fieldsDelimiter}))
+	d.m.Description = desc
+	return nil
+}
+
 func (d *Decoder) decodeField(m *Message) error {
 	switch d.t {
 	case TypeProtocolVersion:
@@ -798,11 +869,13 @@ func (d *Decoder) decodeField(m *Message) error {
 		return d.decodeOrigin(m)
 	case TypeRepeatTimes:
 		return d.decodeRepeatTimes(m)
+	case TypeTimeZones:
+		return d.decodeTimeZoneAdjustments(m)
+	case TypeMediaDescription:
+		return d.decodeMediaDescription(m)
+	default:
+		panic("unexpected field")
 	}
-	// TODO: uncomment when all decoder methods implemented
-	// panic("unexpected field")
-	log.Warnln("skipping decoding of", d.t)
-	return nil
 }
 
 func (d *Decoder) decodeSession(m *Message) error {

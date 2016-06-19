@@ -1,7 +1,6 @@
 package sdp
 
 import (
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -65,11 +64,8 @@ func TestDecoder_Decode(t *testing.T) {
 		log.Println(m.Medias[0].Attributes)
 		t.Error("rtpmap", m.Medias[1].Attributes.Value("rtpmap"))
 	}
-	if m.Bandwidth != 154798 {
-		t.Error("bandwidth bad value", m.Bandwidth)
-	}
-	if m.BandwidthType != BandwidthConferenceTotal {
-		t.Error("bandwidth bad type", m.BandwidthType)
+	if m.Bandwidths[BandwidthConferenceTotal] != 154798 {
+		t.Error("bandwidth bad value", m.Bandwidths[BandwidthConferenceTotal])
 	}
 	expectedEncryption := Encryption{"clear", "ab8c4df8b8f4as8v8iuy8re"}
 	if m.Encryption != expectedEncryption {
@@ -107,6 +103,49 @@ func TestDecoder_Decode(t *testing.T) {
 	if !oExpected.Equal(m.Origin) {
 		t.Error(oExpected, "!=", m.Origin)
 	}
+	if len(m.TZAdjustments) < 2 {
+		t.Error("tz adjustments count unexpected")
+	} else {
+		tzExp := TimeZone{
+			Start:  NTPToTime(2882844526),
+			Offset: -1 * time.Hour,
+		}
+		if m.TZAdjustments[0] != tzExp {
+			t.Error("tz", m.TZAdjustments[0], "!=", tzExp)
+		}
+		tzExp = TimeZone{
+			Start:  NTPToTime(2898848070),
+			Offset: 0,
+		}
+		if m.TZAdjustments[1] != tzExp {
+			t.Error("tz", m.TZAdjustments[0], "!=", tzExp)
+		}
+	}
+
+	if len(m.Medias) != 2 {
+		t.Error("media count unexpected")
+	} else {
+		// audio 49170 RTP/AVP 0
+		mExp := MediaDescription{
+			Type:     "audio",
+			Port:     49170,
+			Protocol: "RTP/AVP",
+			Format:   "0",
+		}
+		if m.Medias[0].Description != mExp {
+			t.Error("m", m.Medias[0].Description, "!=", mExp)
+		}
+		// video 51372 RTP/AVP 99
+		mExp = MediaDescription{
+			Type:     "video",
+			Port:     51372,
+			Protocol: "RTP/AVP",
+			Format:   "99",
+		}
+		if m.Medias[1].Description != mExp {
+			t.Error("m", m.Medias[1].Description, "!=", mExp)
+		}
+	}
 }
 
 func TestDecoder_WebRTC1(t *testing.T) {
@@ -116,9 +155,9 @@ func TestDecoder_WebRTC1(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, l := range session {
-		fmt.Println(l)
-	}
+	//for _, l := range session {
+	//	fmt.Println(l)
+	//}
 	decoder := Decoder{
 		s: session,
 	}

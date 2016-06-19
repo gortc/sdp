@@ -147,6 +147,10 @@ type ConnectionData struct {
 	Addresses   byte   // <number of addresses>
 }
 
+func (c ConnectionData) Blank() bool {
+	return c.Equal(ConnectionData{})
+}
+
 // Equal returns c == b.
 func (c ConnectionData) Equal(b ConnectionData) bool {
 	if c.NetworkType != b.NetworkType {
@@ -456,6 +460,9 @@ func (s Session) AddMediaDescription(m MediaDescription) Session {
 // AddEncryptionKey appends Encryption Key field with method and key in
 // "k=<method>:<encryption key>" format to Session.
 func (s Session) AddEncryptionKey(method, key string) Session {
+	if len(key) == 0 {
+		return s.AddEncryptionMethod(method)
+	}
 	v := make([]byte, 0, 512)
 	v = append(v, method...)
 	v = appendRune(v, attributesDelimiter)
@@ -471,8 +478,8 @@ func (s Session) AddEncryptionMethod(method string) Session {
 
 // TimeZone is representation of <adjustment time> <offset> pair.
 type TimeZone struct {
-	Adjustment time.Time
-	Offset     time.Duration
+	Start  time.Time
+	Offset time.Duration
 }
 
 func (t TimeZone) appendInterval(v []byte) []byte {
@@ -480,7 +487,7 @@ func (t TimeZone) appendInterval(v []byte) []byte {
 }
 
 func (t TimeZone) append(v []byte) []byte {
-	v = appendUint64(v, TimeToNTP(t.Adjustment))
+	v = appendUint64(v, TimeToNTP(t.Start))
 	v = appendSpace(v)
 	return t.appendInterval(v)
 }

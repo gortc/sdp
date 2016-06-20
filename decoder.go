@@ -9,6 +9,8 @@ import (
 	"time"
 	"unsafe"
 
+	"strings"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )
@@ -95,6 +97,16 @@ func (m Message) Attribute(attribute string) string {
 	return blank
 }
 
+// AddAttribute appends new k-v pair to attribute list.
+func (m *Message) AddAttribute(k, v string) {
+	m.Attributes = addAttribute(m.Attributes, k, v)
+}
+
+// AddFlag appends new flag to attribute list.
+func (m *Message) AddFlag(f string) {
+	m.AddAttribute(f, blank)
+}
+
 // Medias is list of Media.
 type Medias []Media
 
@@ -112,6 +124,9 @@ func (e Encryption) Equal(b Encryption) bool {
 	return e == b
 }
 
+// Bandwidths is map of BandwidthsType and int (bytes per second).
+type Bandwidths map[BandwidthType]int
+
 // Media is media description and attributes.
 type Media struct {
 	Title       string
@@ -119,7 +134,18 @@ type Media struct {
 	Connection  ConnectionData
 	Attributes  Attributes
 	Encryption  Encryption
-	Bandwidths  map[BandwidthType]int
+	Bandwidths  Bandwidths
+}
+
+// AddAttribute appends new k-v pair to attribute list.
+func (m *Media) AddAttribute(k string, values ...string) {
+	v := strings.Join(values, " ")
+	m.Attributes = addAttribute(m.Attributes, k, v)
+}
+
+// AddFlag appends new flag to attribute list.
+func (m *Media) AddFlag(f string) {
+	m.AddAttribute(f, blank)
 }
 
 // Decoder decodes session.
@@ -393,7 +419,7 @@ func addAttribute(a Attributes, k, v string) Attributes {
 		a = make(Attributes)
 	}
 	if len(v) == 0 {
-		v = "true"
+		v = blank
 	}
 	a[k] = append(a[k], v)
 	return a
@@ -598,12 +624,12 @@ func (d *Decoder) decodeBandwidth(m *Message) error {
 	}
 	if d.section == sectionMedia {
 		if d.m.Bandwidths == nil {
-			d.m.Bandwidths = make(map[BandwidthType]int)
+			d.m.Bandwidths = make(Bandwidths)
 		}
 		d.m.Bandwidths[t] = n
 	} else {
 		if m.Bandwidths == nil {
-			m.Bandwidths = make(map[BandwidthType]int)
+			m.Bandwidths = make(Bandwidths)
 		}
 		m.Bandwidths[t] = n
 	}
@@ -697,16 +723,16 @@ func (d *Decoder) decodeOrigin(m *Message) error {
 		return errors.Wrap(err, "failed to decode sess-id")
 	}
 	if err = decodeInt(p[2], &o.SessionVersion); err != nil {
-		return errors.Wrap(err, "failed to decode sess-id")
+		return errors.Wrap(err, "failed to decode sess-version")
 	}
 	if err = decodeString(p[3], &o.NetworkType); err != nil {
 		return errors.Wrap(err, "failed to decode net-type")
 	}
 	if err = decodeString(p[4], &o.AddressType); err != nil {
-		return errors.Wrap(err, "failed to decode net-type")
+		return errors.Wrap(err, "failed to decode addres-type")
 	}
-	if o.IP, err = decodeIP(o.IP, p[5]); err != nil {
-		return errors.Wrap(err, "failed to decode IP")
+	if err = decodeString(p[5], &o.Address); err != nil {
+		return errors.Wrap(err, "failed to decode address")
 	}
 	m.Origin = o
 	return nil

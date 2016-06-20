@@ -62,13 +62,13 @@ func TestSession_AddOrigin(t *testing.T) {
 		Username:       "jdoe",
 		SessionID:      2890844526,
 		SessionVersion: 2890842807,
-		IP:             net.ParseIP("10.47.16.5"),
+		Address:        "10.47.16.5",
 	})
 	s = s.AddOrigin(Origin{
 		Username:       "jdoe",
 		SessionID:      2890844527,
 		SessionVersion: 2890842807,
-		IP:             net.ParseIP("FF15::103"),
+		Address:        "FF15::103",
 	})
 	shouldDecodeExpS(t, s, "origin")
 }
@@ -189,7 +189,7 @@ func TestSession_EX1(t *testing.T) {
 			Username:       "jdoe",
 			SessionID:      2890844526,
 			SessionVersion: 2890842807,
-			IP:             net.ParseIP("10.47.16.5"),
+			Address:        "10.47.16.5",
 		}).
 		AddSessionName("SDP Seminar").
 		AddSessionInfo("A Seminar on the session description protocol").
@@ -273,7 +273,7 @@ func BenchmarkSession_EX1(b *testing.B) {
 			Username:       "jdoe",
 			SessionID:      2890844526,
 			SessionVersion: 2890842807,
-			IP:             sessIP,
+			Address:        sessIP.String(),
 		})
 		s = s.AddSessionName("SDP Seminar")
 		s = s.AddSessionInfo("A Seminar on the session description protocol")

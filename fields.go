@@ -172,8 +172,8 @@ func (c ConnectionData) Equal(b ConnectionData) bool {
 }
 
 const (
-	addrTypeIPv4        = "IP6"
-	addrTypeIPv6        = "IP4"
+	addrTypeIPv4        = "IP4"
+	addrTypeIPv6        = "IP6"
 	networkTypeInternet = "IN"
 	attributesDelimiter = ':'
 )
@@ -184,20 +184,32 @@ func (c ConnectionData) getNetworkType() string {
 
 // getAddressType returns Address Type ("addrtype") for ip,
 // using addressType as default value if present.
-func getAddressType(ip net.IP, addressType string) string {
+func getAddressType(addr, addressType string) string {
 	if len(addressType) != 0 {
 		return addressType
 	}
+	return getAddressTypeIP(net.ParseIP(addr), addressType)
+}
+
+// getAddressType returns Address Type ("addrtype") for ip,
+// using addressType as default value if present.
+func getAddressTypeIP(ip net.IP, addressType string) string {
+	if len(addressType) != 0 {
+		return addressType
+	}
+	if ip == nil {
+		return addrTypeIPv4
+	}
 	switch ip.To4() {
 	case nil:
-		return addrTypeIPv4
-	default:
 		return addrTypeIPv6
+	default:
+		return addrTypeIPv4
 	}
 }
 
 func (c ConnectionData) getAddressType() string {
-	return getAddressType(c.IP, c.AddressType)
+	return getAddressTypeIP(c.IP, c.AddressType)
 }
 
 // ConnectionAddress formats <connection-address> sub-field.
@@ -241,7 +253,7 @@ type Origin struct {
 	SessionVersion int    // <sess-version>
 	NetworkType    string // <nettype>
 	AddressType    string // <addrtype>
-	IP             net.IP // <unicast-address>
+	Address        string // <unicast-address>
 }
 
 func (o Origin) getNetworkType() string {
@@ -249,7 +261,7 @@ func (o Origin) getNetworkType() string {
 }
 
 func (o Origin) getAddressType() string {
-	return getAddressType(o.IP, o.AddressType)
+	return getAddressType(o.Address, o.AddressType)
 }
 
 // Equal returns b == o.
@@ -269,7 +281,7 @@ func (o Origin) Equal(b Origin) bool {
 	if o.AddressType != b.AddressType {
 		return false
 	}
-	if !o.IP.Equal(b.IP) {
+	if o.Address != b.Address {
 		return false
 	}
 	return true
@@ -283,7 +295,7 @@ func (s Session) AddOrigin(o Origin) Session {
 	v = appendSpace(appendInt(v, o.SessionVersion))
 	v = appendSpace(append(v, o.getNetworkType()...))
 	v = appendSpace(append(v, o.getAddressType()...))
-	v = appendIP(v, o.IP)
+	v = append(v, o.Address...)
 	return s.append(TypeOrigin, v)
 }
 
@@ -455,6 +467,11 @@ func (s Session) AddMediaDescription(m MediaDescription) Session {
 	v = appendSpace(append(v, m.Protocol...))
 	v = append(v, m.Format...)
 	return s.append(TypeMediaDescription, v)
+}
+
+// AddEncryption appends Encryption and is shorthand for AddEncryptionKey.
+func (s Session) AddEncryption(e Encryption) Session {
+	return s.AddEncryptionKey(e.Method, e.Key)
 }
 
 // AddEncryptionKey appends Encryption Key field with method and key in

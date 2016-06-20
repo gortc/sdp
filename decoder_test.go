@@ -89,7 +89,7 @@ func TestDecoder_Decode(t *testing.T) {
 	}
 	// jdoe 2890844526 2890842807 IN IP4 10.47.16.5
 	oExpected := Origin{
-		IP:             net.ParseIP("10.47.16.5"),
+		Address:        "10.47.16.5",
 		SessionID:      2890844526,
 		SessionVersion: 2890842807,
 		NetworkType:    "IN",

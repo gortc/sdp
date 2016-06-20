@@ -161,6 +161,13 @@ type Decoder struct {
 	m       Media
 }
 
+// NewDecoder returns Decoder for Session.
+func NewDecoder(s Session) Decoder {
+	return Decoder{
+		s: s,
+	}
+}
+
 func (d *Decoder) newFieldError(msg string) DecodeError {
 	return DecodeError{
 		Place:  fmt.Sprintf("%s/%s at line %d", d.section, d.t, d.pos),

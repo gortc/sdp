@@ -3,11 +3,8 @@ package sdp
 import (
 	"log"
 	"net"
-	"os"
 	"testing"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 func TestDecodeInterval(t *testing.T) {
@@ -47,7 +44,6 @@ func TestDecoder_Decode(t *testing.T) {
 		s: session,
 	}
 	if err := decoder.Decode(m); err != nil {
-		errors.Fprint(os.Stderr, err)
 		t.Fatal(err)
 	}
 	if m.Version != 0 {
@@ -162,7 +158,6 @@ func TestDecoder_WebRTC1(t *testing.T) {
 		s: session,
 	}
 	if err := decoder.Decode(m); err != nil {
-		errors.Fprint(os.Stderr, err)
 		t.Error(err)
 	}
 	if m.Version != 0 {
@@ -184,7 +179,6 @@ func BenchmarkDecoder_Decode(b *testing.B) {
 			s: session,
 		}
 		if err := decoder.Decode(m); err != nil {
-			errors.Fprint(os.Stderr, err)
 			b.Error(err)
 		}
 		m.Medias = m.Medias[:0]

@@ -32,7 +32,7 @@ func (a Attributes) Values(attribute string) []string {
 
 // Flag returns true if set.
 func (a Attributes) Flag(flag string) bool {
-	return a.Value(flag) != blank
+	return len(a[flag]) != 0
 }
 
 // Message is top level abstraction.

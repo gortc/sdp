@@ -149,6 +149,16 @@ func (m *Media) AddFlag(f string) {
 	m.AddAttribute(f, blank)
 }
 
+// Flag returns true if set.
+func (m *Media) Flag(f string) bool {
+	return m.Attributes.Flag(f)
+}
+
+// Attribute returns string v.
+func (m *Media) Attribute(k string) string {
+	return m.Attributes.Value(k)
+}
+
 // Decoder decodes session.
 type Decoder struct {
 	s       Session
@@ -185,10 +195,6 @@ func (d *Decoder) next() bool {
 	d.t = d.l.Type
 	d.pos++
 	return true
-}
-
-func (d *Decoder) line() Line {
-	return d.l
 }
 
 type section int

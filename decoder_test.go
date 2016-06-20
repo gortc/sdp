@@ -40,9 +40,7 @@ func TestDecoder_Decode(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	decoder := Decoder{
-		s: session,
-	}
+	decoder := NewDecoder(session)
 	if err := decoder.Decode(m); err != nil {
 		t.Fatal(err)
 	}
@@ -182,5 +180,90 @@ func BenchmarkDecoder_Decode(b *testing.B) {
 			b.Error(err)
 		}
 		m.Medias = m.Medias[:0]
+	}
+}
+
+func TestMessage_Defaults(t *testing.T) {
+	m := &Message{}
+	m.AddAttribute("k", "v")
+	m.AddFlag("readonly")
+	if !m.Flag("readonly") {
+		t.Error("flag readonly not found")
+	}
+	if len(m.Attributes.Values("k")) != 1 {
+		t.Error("len(attrs[k]) != 1")
+	}
+	if len(m.Attributes.Values("t")) != 0 {
+		t.Error("len(attrs[t]) != 0")
+	}
+	if m.Attributes.Value("t") != blank {
+		t.Error("attrs[t] != blank")
+	}
+	if !m.Start().IsZero() {
+		t.Error("m.Start != zero")
+	}
+	if !m.End().IsZero() {
+		t.Error("m.End != zero")
+	}
+	if m.Flag("t") {
+		t.Error("flag t should not be true")
+	}
+	if m.Attribute("k") != "v" {
+		t.Errorf("attrs[k] %s != v", m.Attribute("k"))
+	}
+}
+
+func TestMedia_Defaults(t *testing.T) {
+	m := &Media{}
+	if m.Flag("readonly") {
+		t.Error("flag readonly should not be true")
+	}
+	m.AddAttribute("k", "v")
+	m.AddFlag("readonly")
+	if !m.Flag("readonly") {
+		t.Error("flag readonly not found")
+	}
+	if len(m.Attributes.Values("k")) != 1 {
+		t.Error("len(attrs[k]) != 1")
+	}
+	if len(m.Attributes.Values("t")) != 0 {
+		t.Error("len(attrs[t]) != 0")
+	}
+	if m.Attributes.Value("t") != blank {
+		t.Error("attrs[t] != blank")
+	}
+	if m.Flag("t") {
+		t.Error("flag t should not be true")
+	}
+	if m.Attribute("k") != "v" {
+		t.Errorf("attrs[k] %s != v", m.Attribute("k"))
+	}
+}
+
+func TestDecoder_Errors(t *testing.T) {
+	shouldFail := []string{
+		"sdp_session_ex_err1",
+		"sdp_session_ex_err2",
+		"sdp_session_ex_err3",
+		"sdp_session_ex_err4",
+		"sdp_session_ex_err5",
+	}
+	var (
+		s   Session
+		err error
+	)
+	for i, name := range shouldFail {
+		b := loadData(t, name)
+		s, err = DecodeSession(b, s)
+		if err != nil {
+			t.Fatalf("session %s(%d) err: %s", name, i, err)
+		}
+		m := new(Message)
+		d := NewDecoder(s)
+		err = d.Decode(m)
+		s = s.reset()
+		if err == nil {
+			t.Error("%s(%d) should fail", name, i)
+		}
 	}
 }

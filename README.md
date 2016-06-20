@@ -7,7 +7,7 @@ SDP: Session Description Protocol in go.
 In alpha stage.
 
 ### Examples
-See [examples](https://github.com/ernado/sdp/tree/master/example) folder.
+See [examples](https://github.com/ernado/sdp/tree/master/examples) folder.
 
 
 SDP example:

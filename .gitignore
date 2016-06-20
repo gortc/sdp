@@ -29,3 +29,8 @@ _testmain.go
 
 # IDEA
 .idea
+
+# Binaries
+examples/sdp-decode/sdp-decode
+examples/sdp-encode/sdp-encode
+examples/sdp-encode-low/sdp-encode-low

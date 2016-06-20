@@ -26,6 +26,7 @@ func (a Attributes) Value(attribute string) string {
 	return a[attribute][0]
 }
 
+// Values returns list of values associated to attribute.
 func (a Attributes) Values(attribute string) []string {
 	return a[attribute]
 }
@@ -116,10 +117,12 @@ type Encryption struct {
 	Key    string
 }
 
+// Blank determines whether Encryption is blank value.
 func (e Encryption) Blank() bool {
 	return e.Equal(Encryption{})
 }
 
+// Equal returns e == b.
 func (e Encryption) Equal(b Encryption) bool {
 	return e == b
 }
@@ -851,11 +854,11 @@ func (d *Decoder) decodeMediaDescription(m *Message) error {
 	}
 	// port: port/ports_number
 	pp := bytes.Split(p[1], []byte{'/'})
-	if err := decodeInt(pp[0], &desc.Port); err != nil {
+	if err = decodeInt(pp[0], &desc.Port); err != nil {
 		return errors.Wrap(err, "failed to decode port")
 	}
 	if len(pp) > 1 {
-		if err := decodeInt(pp[1], &desc.PortsNumber); err != nil {
+		if err = decodeInt(pp[1], &desc.PortsNumber); err != nil {
 			return errors.Wrap(err, "failed to decode ports number")
 		}
 	}

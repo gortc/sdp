@@ -5,8 +5,9 @@ lint:
 		-e "_test.go.+(gocyclo|errcheck|dupl)" \
 		--enable="lll" --line-length=80 \
 		--enable="gofmt" \
-		--disable=gotype \
+                --disable=gocyclo \
 		--deadline=300s \
+                --dupl-threshold=70 \
 		-j $(PROCS)
 	@echo "ok"
 install:

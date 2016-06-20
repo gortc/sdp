@@ -147,6 +147,7 @@ type ConnectionData struct {
 	Addresses   byte   // <number of addresses>
 }
 
+// Blank determines if ConnectionData is blank value.
 func (c ConnectionData) Blank() bool {
 	return c.Equal(ConnectionData{})
 }

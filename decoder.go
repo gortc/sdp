@@ -6,12 +6,10 @@ import (
 	"io"
 	"net"
 	"strconv"
+	"strings"
 	"time"
 	"unsafe"
 
-	"strings"
-
-	log "github.com/Sirupsen/logrus"
 	"github.com/pkg/errors"
 )
 
@@ -243,24 +241,24 @@ var orderingMedia = ordering{
 // isExpected determines if t is expected on pos in s section and returns nil,
 // if it is expected and DecodeError if not.
 func isExpected(t Type, s section, pos int) error {
-	logger := log.WithField("t", t).WithFields(log.Fields{
-		"s": s,
-		"p": pos,
-	})
-	logger.Printf("isExpected(%s, %s, %d)", t, s, pos)
+	//logger := log.WithField("t", t).WithFields(log.Fields{
+	//	"s": s,
+	//	"p": pos,
+	//})
+	//logger.Printf("isExpected(%s, %s, %d)", t, s, pos)
 
 	o := getOrdering(s)
 	if len(o) > pos {
 		for _, expected := range o[pos:] {
 			if expected == t {
-				logger.Printf("%s is expected", expected)
+				//logger.Printf("%s is expected", expected)
 				return nil
 			}
 			if isOptional(expected) {
 				continue
 			}
 			if isZeroOrMore(expected) {
-				logger.Printf("%s is not necessary", expected)
+				//logger.Printf("%s is not necessary", expected)
 				continue
 			}
 		}
@@ -270,25 +268,25 @@ func isExpected(t Type, s section, pos int) error {
 	switch s {
 	case sectionSession:
 		if pos < orderingAfterTime && isExpected(t, sectionTime, 0) == nil {
-			logger.Printf("s->t")
+			//logger.Printf("s->t")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			logger.Printf("s->m")
+			//logger.Printf("s->m")
 			return nil
 		}
 	case sectionTime:
 		if isExpected(t, sectionSession, orderingAfterTime) == nil {
-			logger.Printf("t->s")
+			//logger.Printf("t->s")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			logger.Printf("t->m")
+			//logger.Printf("t->m")
 			return nil
 		}
 	case sectionMedia:
 		if pos != 0 && isExpected(t, sectionMedia, 0) == nil {
-			logger.Printf("m->m")
+			//logger.Printf("m->m")
 			return nil
 		}
 	}

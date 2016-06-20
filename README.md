@@ -232,8 +232,10 @@ func main() {
 - [x] High level encoding
 - [x] High level decoding
 - [x] Examples
-- [ ] More examples and docs
 - [x] CI
+- [x] More examples and docs
+- [ ] Online example
+- [ ] io.Reader and io.Writer interop
 - [ ] Include to high-level CI
 
 ### Possible optimizations

@@ -85,6 +85,16 @@ func appendIPv4(dst []byte, ip net.IP) []byte {
 	return dst
 }
 
+// AddRaw appends k=v to Session.
+func (s Session) AddRaw(k rune, v string) Session {
+	return s.appendString(Type(k), v)
+}
+
+// AddLine appends t=v to Session.
+func (s Session) AddLine(t Type, v string) Session {
+	return s.appendString(t, v)
+}
+
 // AddVersion appends Version field to Session.
 func (s Session) AddVersion(version int) Session {
 	v := make([]byte, 0, 64)

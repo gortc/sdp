@@ -1,8 +1,10 @@
 [![Build Status](https://travis-ci.org/ernado/sdp.svg?branch=master)](https://travis-ci.org/ernado/sdp)
+[![Coverage Status](https://coveralls.io/repos/github/ernado/sdp/badge.svg?branch=master)](https://coveralls.io/github/ernado/sdp?branch=master)
+[![GoDoc](https://godoc.org/github.com/ernado/sdp?status.svg)](https://godoc.org/github.com/ernado/sdp)
 
-# SDP
+# SDP go implementation
 [RFC 4566](https://tools.ietf.org/html/rfc4566)
-SDP: Session Description Protocol in go.
+SDP: Session Description Protocol in golang.
 
 In alpha stage.
 

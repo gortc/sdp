@@ -10,7 +10,9 @@ In alpha stage.
 
 ### Examples
 See [examples](https://github.com/ernado/sdp/tree/master/examples) folder.
-
+Also there is [online SDP example](https://cydev.ru/sdp/) that gets SDP
+offer using WebRTC, sends it to server, decodes as `sdb.Session` and
+renders it on web page. 
 
 SDP example:
 ```sdp
@@ -234,7 +236,7 @@ func main() {
 - [x] Examples
 - [x] CI
 - [x] More examples and docs
-- [ ] Online example
+- [x] Online example
 - [ ] io.Reader and io.Writer interop
 - [ ] Include to high-level CI
 

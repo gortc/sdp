@@ -10,9 +10,9 @@ In alpha stage.
 
 ### Examples
 See [examples](https://github.com/ernado/sdp/tree/master/examples) folder.
-Also there is [online SDP example](https://cydev.ru/sdp/) that gets SDP
-offer using WebRTC, sends it to server, decodes as `sdb.Session` and
-renders it on web page. 
+Also there is [online SDP example](https://cydev.ru/sdp/) that gets
+`RTCPeerConnection.localDescription.sdp` using WebRTC, 
+sends it to server, decodes as `sdp.Session` and renders it on web page.
 
 SDP example:
 ```sdp

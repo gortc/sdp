@@ -263,7 +263,7 @@ func TestDecoder_Errors(t *testing.T) {
 		err = d.Decode(m)
 		s = s.reset()
 		if err == nil {
-			t.Error("%s(%d) should fail", name, i)
+			t.Errorf("%s(%d) should fail", name, i)
 		}
 	}
 }

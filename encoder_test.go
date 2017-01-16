@@ -169,10 +169,10 @@ func BenchmarkEncode(b *testing.B) {
 	m.AddFlag("recvonly")
 	s := make(Session, 0, 100)
 	buf := make([]byte, 0, 1024)
-
 	for i := 0; i < b.N; i++ {
 		s = m.Append(s)
 		buf = s.AppendTo(buf)
 		s = s.reset()
+		buf = buf[:0]
 	}
 }

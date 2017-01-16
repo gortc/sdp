@@ -199,6 +199,14 @@ func getAddressType(addr, addressType string) string {
 	if len(addressType) != 0 {
 		return addressType
 	}
+	for _, s := range addr {
+		if s == ':' {
+			return addrTypeIPv6
+		}
+		if s == '.' {
+			return addrTypeIPv4
+		}
+	}
 	return getAddressTypeIP(net.ParseIP(addr), addressType)
 }
 
@@ -416,7 +424,7 @@ func appendIntervalCompact(b []byte, d time.Duration) []byte {
 			return unit.append(b, d)
 		}
 	}
-	return appendInterval(b, d, false)
+	return appendInt(b, int(d.Seconds()))
 }
 
 func appendInterval(b []byte, d time.Duration, compact bool) []byte {

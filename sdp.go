@@ -229,15 +229,6 @@ func (s Session) appendString(t Type, v string) Session {
 	return append(s, line)
 }
 
-func blankSlice(v []byte) bool {
-	if v == nil {
-		return true
-	}
-	if len(v) == 0 {
-		return true
-	}
-	return false
-}
 
 // sliceScanner is custom in-memory scanner for slice
 // that will scan all non-whitespace lines.
@@ -276,7 +267,7 @@ func (s *sliceScanner) Scan() bool {
 			s.end = len(s.v)
 		}
 		s.line = bytes.TrimSpace(s.v[s.pos:s.end])
-		if blankSlice(s.line) {
+		if len(s.line) == 0 {
 			continue
 		}
 		return true

@@ -43,24 +43,12 @@ type Line struct {
 	Value []byte
 }
 
-func byteSliceEqual(a, b []byte) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if b[i] != a[i] {
-			return false
-		}
-	}
-	return true
-}
-
 // Equal returns true if l == b.
 func (l Line) Equal(b Line) bool {
 	if l.Type != b.Type {
 		return false
 	}
-	return byteSliceEqual(l.Value, b.Value)
+	return bytes.Equal(l.Value, b.Value)
 }
 
 // Decode parses b into l and returns error if any.

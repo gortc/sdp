@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/gortc/sdp.svg?branch=master)](https://travis-ci.org/gortc/sdp)
+[![Build status](https://ci.appveyor.com/api/projects/status/gcxr3fq9ebadmu9b?svg=true)](https://ci.appveyor.com/project/ernado/sdp)
 [![Coverage Status](https://coveralls.io/repos/github/gortc/sdp/badge.svg?branch=master)](https://coveralls.io/github/gortc/sdp?branch=master)
 [![GoDoc](https://godoc.org/github.com/gortc/sdp?status.svg)](https://godoc.org/github.com/gortc/sdp)
 

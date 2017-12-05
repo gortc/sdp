@@ -5,7 +5,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/ernado/sdp"
+	"github.com/gortc/sdp"
 )
 
 func main() {

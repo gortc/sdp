@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ernado/sdp"
+	"github.com/gortc/sdp"
 )
 
 func main() {

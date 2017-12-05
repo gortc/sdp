@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ernado/sdp"
+	"github.com/gortc/sdp"
 )
 
 func main() {

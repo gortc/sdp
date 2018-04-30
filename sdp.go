@@ -217,7 +217,6 @@ func (s Session) appendString(t Type, v string) Session {
 	return append(s, line)
 }
 
-
 // sliceScanner is custom in-memory scanner for slice
 // that will scan all non-whitespace lines.
 type sliceScanner struct {
@@ -239,7 +238,6 @@ func (s sliceScanner) Line() []byte {
 
 func (s *sliceScanner) Scan() bool {
 	// CPU: suboptimal.
-	// TODO: handle /r
 	for {
 		s.pos = s.end
 		if s.pos >= len(s.v) {

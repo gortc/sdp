@@ -789,17 +789,16 @@ func decodeInterval(b []byte, v *time.Duration) error {
 	return nil
 }
 
-func shouldBePositive(i int) {
-	if i <= 0 {
-		panic("value should be positive")
-	}
-}
-
 func (d *Decoder) decodeRepeatTimes(m *Message) error {
 	// r=0<repeat interval> 1<active duration> 2<offsets from start-time>
-	shouldBePositive(len(m.Timing)) // should be newer blank
-	p := d.subfields()
 	var err error
+	if len(m.Timing) < 1 {
+		msg := fmt.Sprintf("repeat without timing")
+		err = newSectionDecodeError(d.section, msg)
+		return errors.Wrap(err, "failed to decode repeat")
+	}
+
+	p := d.subfields()
 	if len(p) < 3 {
 		msg := fmt.Sprintf("unexpected subfields count %d < 3", len(p))
 		err = newSectionDecodeError(d.section, msg)

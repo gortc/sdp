@@ -34,3 +34,8 @@ _testmain.go
 examples/sdp-decode/sdp-decode
 examples/sdp-encode/sdp-encode
 examples/sdp-encode-low/sdp-encode-low
+
+# Fuzzing results
+corpus
+crashers
+suppressions

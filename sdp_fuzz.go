@@ -38,7 +38,9 @@ func Fuzz(data []byte) int {
 	}
 
 	if !s3.Equal(s2) {
-		panic("Not equal")
+		dbg := make([]byte, 0, 1024)
+		dbg = s3.AppendTo(dbg)
+		panic("Not equal: " + string(dbg) + " != " + string(buf))
 	}
 
 	return 1

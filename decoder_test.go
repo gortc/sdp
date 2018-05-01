@@ -280,6 +280,8 @@ func TestDecoder_Errors(t *testing.T) {
 		"sdp_session_ex_err5",
 		"sdp_session_ex_err6",
 		"sdp_session_ex_err7",
+		"sdp_session_ex_err8",
+		"sdp_session_ex_err9",
 	}
 	var (
 		s   Session

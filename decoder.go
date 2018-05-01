@@ -973,6 +973,18 @@ func (d *Decoder) decodeSession(m *Message) error {
 			}
 		}
 	}
+
+	if m.Origin.Address == "" {
+		msg := fmt.Sprintf("origin address not set")
+		err := newSectionDecodeError(sectionSession, msg)
+		return errors.Wrap(err, "failed to decode message")
+	}
+	if m.Name == "" {
+		msg := fmt.Sprintf("session name not set")
+		err := newSectionDecodeError(sectionSession, msg)
+		return errors.Wrap(err, "failed to decode message")
+	}
+
 	return nil
 }
 

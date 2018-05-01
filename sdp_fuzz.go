@@ -2,6 +2,8 @@
 
 package sdp
 
+import "fmt"
+
 // Instructions
 // 0. Create a folder called 'corpus' with the contents of the 'testdata' folder
 // 1. Get
@@ -40,7 +42,8 @@ func Fuzz(data []byte) int {
 	if !s3.Equal(s2) {
 		dbg := make([]byte, 0, 1024)
 		dbg = s3.AppendTo(dbg)
-		panic("Not equal: " + string(dbg) + " != " + string(buf))
+		msg := fmt.Sprintf("Not equal: %q != %q", dbg, buf)
+		panic(msg)
 	}
 
 	return 1

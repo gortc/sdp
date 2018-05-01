@@ -350,7 +350,7 @@ func newSectionDecodeError(s section, m string) DecodeError {
 	return newDecodeError(place, m)
 }
 
-func (d *Decoder) decodeKV() (string, string) {
+func (d *Decoder) decodeKV() (string, string, error) {
 	var (
 		key     []byte
 		value   []byte
@@ -367,7 +367,14 @@ func (d *Decoder) decodeKV() (string, string) {
 			key = append(key, v)
 		}
 	}
-	return string(key), string(value)
+
+	if isValue && len(value) < 1 {
+		msg := fmt.Sprintf("attribute without value")
+		err := newSectionDecodeError(d.section, msg)
+		return "", "", err
+	}
+
+	return string(key), string(value), nil
 }
 
 func (d *Decoder) decodeTiming(m *Message) error {
@@ -440,7 +447,10 @@ func addAttribute(a Attributes, k, v string) Attributes {
 }
 
 func (d *Decoder) decodeAttribute(m *Message) error {
-	k, v := d.decodeKV()
+	k, v, err := d.decodeKV()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode attribute")
+	}
 	switch d.section {
 	case sectionMedia:
 		d.m.Attributes = addAttribute(d.m.Attributes, k, v)
@@ -480,7 +490,10 @@ func (d *Decoder) decodeURI(m *Message) error {
 }
 
 func (d *Decoder) decodeEncryption(m *Message) error {
-	k, v := d.decodeKV()
+	k, v, err := d.decodeKV()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode encryption")
+	}
 	e := Encryption{
 		Key:    v,
 		Method: k,
@@ -614,16 +627,18 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 }
 
 func (d *Decoder) decodeBandwidth(m *Message) error {
-	k, v := d.decodeKV()
+	k, v, err := d.decodeKV()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode bandwidth")
+	}
 	if len(v) == 0 {
 		msg := "no value specified"
 		err := newSectionDecodeError(d.section, msg)
 		return errors.Wrap(err, "failed to decode bandwidth")
 	}
 	var (
-		t   BandwidthType
-		n   int
-		err error
+		t BandwidthType
+		n int
 	)
 	switch bandWidthType := BandwidthType(k); bandWidthType {
 	case BandwidthApplicationSpecific, BandwidthConferenceTotal:
@@ -707,7 +722,7 @@ func (d *Decoder) subfields() ([][]byte, error) {
 	n := bytes.Count(d.v, []byte{fieldsDelimiter})
 	result := make([][]byte, n+1)
 	subField := 0
-	hitSpace := false
+	hitSpace := true
 	for _, v := range d.v {
 		if v == fieldsDelimiter {
 			if hitSpace {

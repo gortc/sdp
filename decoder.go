@@ -523,7 +523,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		err               error
 	)
 	for _, v := range d.v {
-		if v == ' ' {
+		if v == fieldsDelimiter {
 			subField++
 			continue
 		}
@@ -661,7 +661,7 @@ func (d *Decoder) decodeTimingField(m *Message) error {
 		err          error
 	)
 	for _, v := range d.v {
-		if v == ' ' {
+		if v == fieldsDelimiter {
 			if isEndV {
 				msg := "unexpected second space in timing"
 				err = newSectionDecodeError(d.section, msg)
@@ -692,10 +692,6 @@ func (d *Decoder) decodeTimingField(m *Message) error {
 	return nil
 }
 
-const (
-	fieldsDelimiter = ' '
-)
-
 func decodeString(v []byte, s *string) error {
 	*s = b2s(v)
 	return nil
@@ -707,12 +703,28 @@ func decodeInt(v []byte, i *int) error {
 	return err
 }
 
-func subfields(v []byte) [][]byte {
-	return bytes.Split(v, []byte{fieldsDelimiter})
-}
+func (d *Decoder) subfields() ([][]byte, error) {
+	n := bytes.Count(d.v, []byte{fieldsDelimiter})
+	result := make([][]byte, n+1)
+	subField := 0
+	hitSpace := false
+	for _, v := range d.v {
+		if v == fieldsDelimiter {
+			if hitSpace {
+				msg := "unexpected second space in subfields"
+				return nil, newSectionDecodeError(d.section, msg)
+			}
+			subField++
+			hitSpace = true
+			continue
+		} else {
+			hitSpace = false
+		}
 
-func (d *Decoder) subfields() [][]byte {
-	return subfields(d.v)
+		result[subField] = append(result[subField], v)
+	}
+
+	return result[:subField+1], nil
 }
 
 func (d *Decoder) decodeOrigin(m *Message) error {
@@ -723,7 +735,10 @@ func (d *Decoder) decodeOrigin(m *Message) error {
 	var (
 		err error
 	)
-	p := d.subfields()
+	p, err := d.subfields()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode origin")
+	}
 	if len(p) != 6 {
 		msg := fmt.Sprintf("unexpected subfields count %d != %d", len(p), 6)
 		err = newSectionDecodeError(d.section, msg)
@@ -798,7 +813,10 @@ func (d *Decoder) decodeRepeatTimes(m *Message) error {
 		return errors.Wrap(err, "failed to decode repeat")
 	}
 
-	p := d.subfields()
+	p, err := d.subfields()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode repeat")
+	}
 	if len(p) < 3 {
 		msg := fmt.Sprintf("unexpected subfields count %d < 3", len(p))
 		err = newSectionDecodeError(d.section, msg)
@@ -823,11 +841,13 @@ func (d *Decoder) decodeRepeatTimes(m *Message) error {
 
 func (d *Decoder) decodeTimeZoneAdjustments(m *Message) error {
 	// z=<adjustment time> <offset> <adjustment time> <offset> ....
-	p := d.subfields()
+	p, err := d.subfields()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode tz-adjustments")
+	}
 	var (
 		adjustment TimeZone
 		t          uint64
-		err        error
 	)
 	if len(p)%2 != 0 {
 		msg := fmt.Sprintf("unexpected subfields count %d", len(p))
@@ -853,7 +873,10 @@ func (d *Decoder) decodeMediaDescription(m *Message) error {
 		desc MediaDescription
 		err  error
 	)
-	p := d.subfields()
+	p, err := d.subfields()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode media description")
+	}
 	if len(p) < 4 {
 		msg := fmt.Sprintf("unexpected subfields count %d < 4", len(p))
 		err = newSectionDecodeError(d.section, msg)

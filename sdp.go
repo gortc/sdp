@@ -27,8 +27,9 @@ func newDecodeError(place, reason string) DecodeError {
 }
 
 const (
-	lineDelimiter = '='
-	newLine       = '\n'
+	lineDelimiter   = '='
+	fieldsDelimiter = ' '
+	newLine         = '\n'
 )
 
 // Line of SDP session.

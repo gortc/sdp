@@ -1,11 +1,11 @@
 package sdp
 
 import (
+	"bytes"
 	"fmt"
 	"net"
 	"testing"
 	"time"
-	"bytes"
 )
 
 func shouldDecode(tb testing.TB, s Session, name string) {

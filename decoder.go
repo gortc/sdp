@@ -551,7 +551,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		err := d.newFieldError("connection-address is empty")
 		return errors.Wrap(err, "failed to decode connection data")
 	}
-	switch d.section{
+	switch d.section {
 	case sectionMedia:
 		d.m.Connection.AddressType = string(addressType)
 		d.m.Connection.NetworkType = string(netType)
@@ -584,7 +584,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 			return errors.Wrap(err, "failed to decode connection data")
 		}
 	}
-	switch d.section{
+	switch d.section {
 	case sectionMedia:
 		d.m.Connection.IP, err = decodeIP(m.Connection.IP, base)
 	case sectionSession:
@@ -599,7 +599,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 			err := d.newFieldError("unexpected TTL for IPv6")
 			return errors.Wrap(err, "failed to decode connection data")
 		}
-		switch d.section{
+		switch d.section {
 		case sectionMedia:
 			d.m.Connection.TTL, err = decodeByte(first)
 		case sectionSession:
@@ -608,7 +608,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		if err != nil {
 			return errors.Wrap(err, "failed to decode connection data")
 		}
-		switch d.section{
+		switch d.section {
 		case sectionMedia:
 			d.m.Connection.Addresses, err = decodeByte(second)
 		case sectionSession:
@@ -619,14 +619,14 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		}
 	} else if len(first) > 0 {
 		if isV4 {
-			switch d.section{
+			switch d.section {
 			case sectionMedia:
 				m.Connection.TTL, err = decodeByte(first)
 			case sectionSession:
 				m.Connection.TTL, err = decodeByte(first)
 			}
 		} else {
-			switch d.section{
+			switch d.section {
 			case sectionMedia:
 				d.m.Connection.Addresses, err = decodeByte(second)
 			case sectionSession:

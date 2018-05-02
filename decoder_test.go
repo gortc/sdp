@@ -267,3 +267,28 @@ func TestDecoder_Errors(t *testing.T) {
 		}
 	}
 }
+
+func TestDecoder_ExMediaConnection(t *testing.T) {
+	m := new(Message)
+	tData := loadData(t, "sdp_session_ex_mediac")
+	session, err := DecodeSession(tData, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoder := NewDecoder(session)
+	if err := decoder.Decode(m); err != nil {
+		t.Fatal(err)
+	}
+	if len(m.Medias) != 2 {
+		t.Error("media count unexpected")
+	} else {
+		cExpected := ConnectionData{
+			IP:          net.ParseIP("0.0.0.0"),
+			NetworkType: "IN",
+			AddressType: "IP4",
+		}
+		if got := m.Medias[0].Connection; !cExpected.Equal(got) {
+			t.Errorf("%s (got) != %s (expected)", got, cExpected)
+		}
+	}
+}

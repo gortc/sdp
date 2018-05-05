@@ -9,7 +9,7 @@ import (
 )
 
 func appendSpace(v []byte) []byte {
-	return appendRune(v, ' ')
+	return appendRune(v, fieldsDelimiter)
 }
 
 func appendInt(v []byte, i int) []byte {

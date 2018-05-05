@@ -9,14 +9,22 @@ import (
 
 func TestMessage_Append(t *testing.T) {
 	audio := Media{
+		Title: "audiotitle",
 		Description: MediaDescription{
 			Type:     "audio",
 			Port:     49170,
 			Format:   "0",
 			Protocol: "RTP/AVP",
 		},
+		Connection: ConnectionData{
+			NetworkType: "IN",
+			AddressType: "IP4",
+			IP:          net.ParseIP("224.2.1.1"),
+			TTL:         127,
+		},
 	}
 	video := Media{
+		Title: "videotitle",
 		Description: MediaDescription{
 			Type:     "video",
 			Port:     51372,
@@ -63,6 +71,16 @@ func TestMessage_Append(t *testing.T) {
 				},
 			},
 		},
+		TZAdjustments: []TimeZone{
+			{
+				NTPToTime(2882844526),
+				time.Hour * -1,
+			},
+			{
+				NTPToTime(2898848070),
+				time.Hour * 0,
+			},
+		},
 		Encryption: Encryption{
 			Method: "clear",
 			Key:    "ab8c4df8b8f4as8v8iuy8re",
@@ -81,10 +99,14 @@ c=IN IP4 224.2.17.12/127
 b=CT:154798
 t=2873397496 2873404696
 r=7d 1h 0 25h
+z=2882844526 -1h 2898848070 0
 k=clear:ab8c4df8b8f4as8v8iuy8re
 a=recvonly
 m=audio 49170 RTP/AVP 0
+i=audiotitle
+c=IN IP4 224.2.1.1/127
 m=video 51372 RTP/AVP 99
+i=videotitle
 b=AS:66781
 k=prompt
 a=rtpmap:99 h263-1998/90000`

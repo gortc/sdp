@@ -1,7 +1,7 @@
 package sdp
 
 import (
-	"io/ioutil"
+	"bufio"
 	"os"
 	"path/filepath"
 	"testing"
@@ -12,7 +12,19 @@ const (
 	dataSDPExample1 = "sdp_session_ex1"
 )
 
-func loadData(tb testing.TB, name string) []byte {
+var (
+	testNL       = []byte{'\n'}
+	testCRNL     = []byte{'\r', '\n'}
+	testEndLines = []struct {
+		name  string
+		bytes []byte
+	}{
+		{"NL", testNL},
+		{"CRNL", testCRNL},
+	}
+)
+
+func loadData(tb testing.TB, name string, newLineBytes []byte) []byte {
 	name = filepath.Join("testdata", name+".txt")
 	f, err := os.Open(name)
 	if err != nil {
@@ -23,8 +35,19 @@ func loadData(tb testing.TB, name string) []byte {
 			tb.Fatal(errClose)
 		}
 	}()
-	v, err := ioutil.ReadAll(f)
-	if err != nil {
+	s := bufio.NewScanner(f)
+	var v []byte
+	nl := false
+	for s.Scan() {
+		b := s.Bytes()
+		if nl {
+			v = append(v, newLineBytes...)
+		} else {
+			nl = true
+		}
+		v = append(v, b...)
+	}
+	if err := s.Err(); err != nil {
 		tb.Fatal(err)
 	}
 	return v
@@ -103,13 +126,17 @@ func BenchmarkDecode(b *testing.B) {
 }
 
 func TestDecodeSession2(t *testing.T) {
-	data := loadData(t, dataSDPExample1)
-	s, err := DecodeSession(data, nil)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if len(s) != 12 {
-		t.Fatal("length should be 12")
+	for _, testEndLine := range testEndLines {
+		t.Run(testEndLine.name, func(t *testing.T) {
+			data := loadData(t, dataSDPExample1, testEndLine.bytes)
+			s, err := DecodeSession(data, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(s) != 12 {
+				t.Fatal("length should be 12")
+			}
+		})
 	}
 }
 
@@ -217,5 +244,27 @@ func BenchmarkDecodeSession(b *testing.B) {
 			b.Fatal(err)
 		}
 		session = session[:0]
+	}
+}
+
+func TestDecodeSession_Errors(t *testing.T) {
+	shouldFail := []struct {
+		Name string
+		Data string
+	}{
+		{"No delimitor", "v"},
+		{"No value", "v="},
+	}
+	var (
+		s   Session
+		err error
+	)
+	for _, test := range shouldFail {
+		t.Run(test.Name, func(t *testing.T) {
+			s, err = DecodeSession([]byte(test.Data), s)
+			if err == nil {
+				t.Errorf("should fail")
+			}
+		})
 	}
 }

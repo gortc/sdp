@@ -350,7 +350,7 @@ func newSectionDecodeError(s section, m string) DecodeError {
 	return newDecodeError(place, m)
 }
 
-func (d *Decoder) decodeKV() (string, string) {
+func (d *Decoder) decodeKV() (string, string, error) {
 	var (
 		key     []byte
 		value   []byte
@@ -367,7 +367,14 @@ func (d *Decoder) decodeKV() (string, string) {
 			key = append(key, v)
 		}
 	}
-	return string(key), string(value)
+
+	if isValue && len(value) < 1 {
+		msg := fmt.Sprintf("attribute without value")
+		err := newSectionDecodeError(d.section, msg)
+		return "", "", err
+	}
+
+	return string(key), string(value), nil
 }
 
 func (d *Decoder) decodeTiming(m *Message) error {
@@ -440,7 +447,10 @@ func addAttribute(a Attributes, k, v string) Attributes {
 }
 
 func (d *Decoder) decodeAttribute(m *Message) error {
-	k, v := d.decodeKV()
+	k, v, err := d.decodeKV()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode attribute")
+	}
 	switch d.section {
 	case sectionMedia:
 		d.m.Attributes = addAttribute(d.m.Attributes, k, v)
@@ -480,7 +490,10 @@ func (d *Decoder) decodeURI(m *Message) error {
 }
 
 func (d *Decoder) decodeEncryption(m *Message) error {
-	k, v := d.decodeKV()
+	k, v, err := d.decodeKV()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode encryption")
+	}
 	e := Encryption{
 		Key:    v,
 		Method: k,
@@ -523,7 +536,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		err               error
 	)
 	for _, v := range d.v {
-		if v == ' ' {
+		if v == fieldsDelimiter {
 			subField++
 			continue
 		}
@@ -593,7 +606,14 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to decode connection data")
 	}
-	isV4 := isIPv4(m.Connection.IP)
+
+	var isV4 bool
+	switch d.section {
+	case sectionMedia:
+		isV4 = isIPv4(d.m.Connection.IP)
+	case sectionSession:
+		isV4 = isIPv4(m.Connection.IP)
+	}
 	if len(second) > 0 {
 		if !isV4 {
 			err := d.newFieldError("unexpected TTL for IPv6")
@@ -644,16 +664,18 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 }
 
 func (d *Decoder) decodeBandwidth(m *Message) error {
-	k, v := d.decodeKV()
+	k, v, err := d.decodeKV()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode bandwidth")
+	}
 	if len(v) == 0 {
 		msg := "no value specified"
 		err := newSectionDecodeError(d.section, msg)
 		return errors.Wrap(err, "failed to decode bandwidth")
 	}
 	var (
-		t   BandwidthType
-		n   int
-		err error
+		t BandwidthType
+		n int
 	)
 	switch bandWidthType := BandwidthType(k); bandWidthType {
 	case BandwidthApplicationSpecific, BandwidthConferenceTotal:
@@ -691,7 +713,7 @@ func (d *Decoder) decodeTimingField(m *Message) error {
 		err          error
 	)
 	for _, v := range d.v {
-		if v == ' ' {
+		if v == fieldsDelimiter {
 			if isEndV {
 				msg := "unexpected second space in timing"
 				err = newSectionDecodeError(d.section, msg)
@@ -722,10 +744,6 @@ func (d *Decoder) decodeTimingField(m *Message) error {
 	return nil
 }
 
-const (
-	fieldsDelimiter = ' '
-)
-
 func decodeString(v []byte, s *string) error {
 	*s = b2s(v)
 	return nil
@@ -737,12 +755,28 @@ func decodeInt(v []byte, i *int) error {
 	return err
 }
 
-func subfields(v []byte) [][]byte {
-	return bytes.Split(v, []byte{fieldsDelimiter})
-}
+func (d *Decoder) subfields() ([][]byte, error) {
+	n := bytes.Count(d.v, []byte{fieldsDelimiter})
+	result := make([][]byte, n+1)
+	subField := 0
+	hitSpace := true
+	for _, v := range d.v {
+		if v == fieldsDelimiter {
+			if hitSpace {
+				msg := "unexpected second space in subfields"
+				return nil, newSectionDecodeError(d.section, msg)
+			}
+			subField++
+			hitSpace = true
+			continue
+		} else {
+			hitSpace = false
+		}
 
-func (d *Decoder) subfields() [][]byte {
-	return subfields(d.v)
+		result[subField] = append(result[subField], v)
+	}
+
+	return result[:subField+1], nil
 }
 
 func (d *Decoder) decodeOrigin(m *Message) error {
@@ -753,7 +787,10 @@ func (d *Decoder) decodeOrigin(m *Message) error {
 	var (
 		err error
 	)
-	p := d.subfields()
+	p, err := d.subfields()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode origin")
+	}
 	if len(p) != 6 {
 		msg := fmt.Sprintf("unexpected subfields count %d != %d", len(p), 6)
 		err = newSectionDecodeError(d.section, msg)
@@ -819,17 +856,19 @@ func decodeInterval(b []byte, v *time.Duration) error {
 	return nil
 }
 
-func shouldBePositive(i int) {
-	if i <= 0 {
-		panic("value should be positive")
-	}
-}
-
 func (d *Decoder) decodeRepeatTimes(m *Message) error {
 	// r=0<repeat interval> 1<active duration> 2<offsets from start-time>
-	shouldBePositive(len(m.Timing)) // should be newer blank
-	p := d.subfields()
 	var err error
+	if len(m.Timing) < 1 {
+		msg := fmt.Sprintf("repeat without timing")
+		err = newSectionDecodeError(d.section, msg)
+		return errors.Wrap(err, "failed to decode repeat")
+	}
+
+	p, err := d.subfields()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode repeat")
+	}
 	if len(p) < 3 {
 		msg := fmt.Sprintf("unexpected subfields count %d < 3", len(p))
 		err = newSectionDecodeError(d.section, msg)
@@ -854,11 +893,13 @@ func (d *Decoder) decodeRepeatTimes(m *Message) error {
 
 func (d *Decoder) decodeTimeZoneAdjustments(m *Message) error {
 	// z=<adjustment time> <offset> <adjustment time> <offset> ....
-	p := d.subfields()
+	p, err := d.subfields()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode tz-adjustments")
+	}
 	var (
 		adjustment TimeZone
 		t          uint64
-		err        error
 	)
 	if len(p)%2 != 0 {
 		msg := fmt.Sprintf("unexpected subfields count %d", len(p))
@@ -884,7 +925,10 @@ func (d *Decoder) decodeMediaDescription(m *Message) error {
 		desc MediaDescription
 		err  error
 	)
-	p := d.subfields()
+	p, err := d.subfields()
+	if err != nil {
+		return errors.Wrap(err, "failed to decode media description")
+	}
 	if len(p) < 4 {
 		msg := fmt.Sprintf("unexpected subfields count %d < 4", len(p))
 		err = newSectionDecodeError(d.section, msg)
@@ -981,6 +1025,18 @@ func (d *Decoder) decodeSession(m *Message) error {
 			}
 		}
 	}
+
+	if m.Origin.Address == "" {
+		msg := fmt.Sprintf("origin address not set")
+		err := newSectionDecodeError(sectionSession, msg)
+		return errors.Wrap(err, "failed to decode message")
+	}
+	if m.Name == "" {
+		msg := fmt.Sprintf("session name not set")
+		err := newSectionDecodeError(sectionSession, msg)
+		return errors.Wrap(err, "failed to decode message")
+	}
+
 	return nil
 }
 

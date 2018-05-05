@@ -564,9 +564,14 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		err := d.newFieldError("connection-address is empty")
 		return errors.Wrap(err, "failed to decode connection data")
 	}
-	m.Connection.AddressType = string(addressType)
-	m.Connection.NetworkType = string(netType)
-
+	switch d.section {
+	case sectionMedia:
+		d.m.Connection.AddressType = string(addressType)
+		d.m.Connection.NetworkType = string(netType)
+	case sectionSession:
+		m.Connection.AddressType = string(addressType)
+		m.Connection.NetworkType = string(netType)
+	}
 	// decoding address
 	// <base multicast address>[/<ttl>]/<number of addresses>
 	var (
@@ -592,7 +597,12 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 			return errors.Wrap(err, "failed to decode connection data")
 		}
 	}
-	m.Connection.IP, err = decodeIP(m.Connection.IP, base)
+	switch d.section {
+	case sectionMedia:
+		d.m.Connection.IP, err = decodeIP(m.Connection.IP, base)
+	case sectionSession:
+		m.Connection.IP, err = decodeIP(m.Connection.IP, base)
+	}
 	if err != nil {
 		return errors.Wrap(err, "failed to decode connection data")
 	}
@@ -602,19 +612,39 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 			err := d.newFieldError("unexpected TTL for IPv6")
 			return errors.Wrap(err, "failed to decode connection data")
 		}
-		m.Connection.TTL, err = decodeByte(first)
+		switch d.section {
+		case sectionMedia:
+			d.m.Connection.TTL, err = decodeByte(first)
+		case sectionSession:
+			m.Connection.TTL, err = decodeByte(first)
+		}
 		if err != nil {
 			return errors.Wrap(err, "failed to decode connection data")
 		}
-		m.Connection.Addresses, err = decodeByte(second)
+		switch d.section {
+		case sectionMedia:
+			d.m.Connection.Addresses, err = decodeByte(second)
+		case sectionSession:
+			m.Connection.Addresses, err = decodeByte(second)
+		}
 		if err != nil {
 			return errors.Wrap(err, "failed to decode connection data")
 		}
 	} else if len(first) > 0 {
 		if isV4 {
-			m.Connection.TTL, err = decodeByte(first)
+			switch d.section {
+			case sectionMedia:
+				m.Connection.TTL, err = decodeByte(first)
+			case sectionSession:
+				m.Connection.TTL, err = decodeByte(first)
+			}
 		} else {
-			m.Connection.Addresses, err = decodeByte(second)
+			switch d.section {
+			case sectionMedia:
+				d.m.Connection.Addresses, err = decodeByte(second)
+			case sectionSession:
+				m.Connection.Addresses, err = decodeByte(second)
+			}
 		}
 		if err != nil {
 			msg := fmt.Sprintf("bad connection data <%s> at <%s>",

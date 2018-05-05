@@ -278,7 +278,6 @@ func TestDecoder_Errors(t *testing.T) {
 		"sdp_session_ex_err3",  // Invalid text
 		"sdp_session_ex_err4",  // Bandwidth: In time description
 		"sdp_session_ex_err5",  // ConnectionData: No connectionAddress
-		"sdp_session_ex_err6",  // RepeatTimes: No value
 		"sdp_session_ex_err7",  // RepeatTimes: Double space
 		"sdp_session_ex_err8",  // SessionName: Missing
 		"sdp_session_ex_err9",  // Origin: Missing
@@ -288,7 +287,6 @@ func TestDecoder_Errors(t *testing.T) {
 		"sdp_session_ex_err13", // Bandwidth: decodeKV: Attribute without value
 		"sdp_session_ex_err14", // ProtocolVersion: Not a number
 		"sdp_session_ex_err15", // MediaDescription: < 4 sub-fields
-		"sdp_session_ex_err16", // ConnectionData: No netType
 		"sdp_session_ex_err17", // ConnectionData: No addressType
 		"sdp_session_ex_err18", // ConnectionData: To many sub-fields
 		"sdp_session_ex_err19", // ConnectionData: To many connectionAddress  sub-fields
@@ -297,7 +295,6 @@ func TestDecoder_Errors(t *testing.T) {
 		"sdp_session_ex_err22", // ConnectionData: Invalid number of addresses
 		"sdp_session_ex_err23", // ConnectionData: Invalid number of addresses with ttl
 		"sdp_session_ex_err24", // ConnectionData: Invalid number of addresses IPV6
-		"sdp_session_ex_err25", // Bandwidth: No value
 		"sdp_session_ex_err26", // Bandwidth: Invalid BW type
 		"sdp_session_ex_err27", // Bandwidth: Invalid value
 		"sdp_session_ex_err28", // Timing: To many sub-fields
@@ -325,19 +322,19 @@ func TestDecoder_Errors(t *testing.T) {
 		s   Session
 		err error
 	)
-	for i, name := range shouldFail {
+	for _, name := range shouldFail {
 		t.Run(name, func(t *testing.T) {
 			b := loadData(t, name, testNL)
 			s, err = DecodeSession(b, s)
 			if err != nil {
-				t.Fatalf("session %s(%d) err: %s", name, i, err)
+				t.Fatalf("err: %s", err)
 			}
 			m := new(Message)
 			d := NewDecoder(s)
 			err = d.Decode(m)
 			s = s.reset()
 			if err == nil {
-				t.Errorf("%s(%d) should fail", name, i)
+				t.Errorf("should fail")
 			}
 		})
 	}

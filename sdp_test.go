@@ -246,3 +246,25 @@ func BenchmarkDecodeSession(b *testing.B) {
 		session = session[:0]
 	}
 }
+
+func TestDecodeSession_Errors(t *testing.T) {
+	shouldFail := []struct {
+		Name string
+		Data string
+	}{
+		{"No delimitor", "v"},
+		{"No value", "v="},
+	}
+	var (
+		s   Session
+		err error
+	)
+	for _, test := range shouldFail {
+		t.Run(test.Name, func(t *testing.T) {
+			s, err = DecodeSession([]byte(test.Data), s)
+			if err == nil {
+				t.Errorf("should fail")
+			}
+		})
+	}
+}

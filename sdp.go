@@ -62,7 +62,7 @@ func (l *Line) Decode(b []byte) error {
 		err := newDecodeError("line", reason)
 		return errors.Wrap(err, "failed to decode")
 	}
-	if len(b) < (delimiter + 1) {
+	if len(b) <= (delimiter + 1) {
 		reason := fmt.Sprintf(
 			"len(b) %d < (%d + 1), no value found after delimiter",
 			len(b), delimiter,

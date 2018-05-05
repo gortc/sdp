@@ -278,6 +278,7 @@ func TestDecoder_Errors(t *testing.T) {
 		"sdp_session_ex_err3",  // Invalid text
 		"sdp_session_ex_err4",  // Bandwidth: In time description
 		"sdp_session_ex_err5",  // ConnectionData: No connectionAddress
+		"sdp_session_ex_err6",  // RepeatTimes: Repeat times without times
 		"sdp_session_ex_err7",  // RepeatTimes: Double space
 		"sdp_session_ex_err8",  // SessionName: Missing
 		"sdp_session_ex_err9",  // Origin: Missing

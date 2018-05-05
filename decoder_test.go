@@ -273,36 +273,70 @@ func TestMedia_Defaults(t *testing.T) {
 
 func TestDecoder_Errors(t *testing.T) {
 	shouldFail := []string{
-		"sdp_session_ex_err1",
-		"sdp_session_ex_err2",
-		"sdp_session_ex_err3",
-		"sdp_session_ex_err4",
-		"sdp_session_ex_err5",
-		"sdp_session_ex_err6",
-		"sdp_session_ex_err7",
-		"sdp_session_ex_err8",
-		"sdp_session_ex_err9",
-		"sdp_session_ex_err10",
-		"sdp_session_ex_err11",
-		"sdp_session_ex_err12",
-		"sdp_session_ex_err13",
+		"sdp_session_ex_err1",  // Bandwidth: In time description
+		"sdp_session_ex_err2",  // Origin: To many sub-fields
+		"sdp_session_ex_err3",  // Invalid text
+		"sdp_session_ex_err4",  // Bandwidth: In time description
+		"sdp_session_ex_err5",  // ConnectionData: No connectionAddress
+		"sdp_session_ex_err6",  // RepeatTimes: No value
+		"sdp_session_ex_err7",  // RepeatTimes: Double space
+		"sdp_session_ex_err8",  // SessionName: Missing
+		"sdp_session_ex_err9",  // Origin: Missing
+		"sdp_session_ex_err10", // RepeatTimes: Starting with a space
+		"sdp_session_ex_err11", // Attribute: decodeKV: Attribute without value
+		"sdp_session_ex_err12", // EncryptionKey: decodeKV: Attribute without value
+		"sdp_session_ex_err13", // Bandwidth: decodeKV: Attribute without value
+		"sdp_session_ex_err14", // ProtocolVersion: Not a number
+		"sdp_session_ex_err15", // MediaDescription: < 4 sub-fields
+		"sdp_session_ex_err16", // ConnectionData: No netType
+		"sdp_session_ex_err17", // ConnectionData: No addressType
+		"sdp_session_ex_err18", // ConnectionData: To many sub-fields
+		"sdp_session_ex_err19", // ConnectionData: To many connectionAddress  sub-fields
+		"sdp_session_ex_err20", // ConnectionData: Unexpected TTL for IPv6
+		"sdp_session_ex_err21", // ConnectionData: Invalid TTL
+		"sdp_session_ex_err22", // ConnectionData: Invalid number of addresses
+		"sdp_session_ex_err23", // ConnectionData: Invalid number of addresses with ttl
+		"sdp_session_ex_err24", // ConnectionData: Invalid number of addresses IPV6
+		"sdp_session_ex_err25", // Bandwidth: No value
+		"sdp_session_ex_err26", // Bandwidth: Invalid BW type
+		"sdp_session_ex_err27", // Bandwidth: Invalid value
+		"sdp_session_ex_err28", // Timing: To many sub-fields
+		"sdp_session_ex_err29", // Timing: Invalid start
+		"sdp_session_ex_err30", // Timing: Invalid end
+		"sdp_session_ex_err31", // Origin: Invalid subfields
+		"sdp_session_ex_err32", // Origin: Invalid sess-id
+		"sdp_session_ex_err33", // Origin: Invalid sess-version
+		"sdp_session_ex_err34", // RepeatTimes: Invalid number of sub-fields
+		"sdp_session_ex_err35", // RepeatTimes: Invalid repeat interval
+		"sdp_session_ex_err36", // RepeatTimes: Invalid active duration
+		"sdp_session_ex_err37", // RepeatTimes: Invalid offsets from start-time
+		"sdp_session_ex_err38", // TimeZones: Invalid double space
+		"sdp_session_ex_err39", // TimeZones: Invalid number of sub-fields
+		"sdp_session_ex_err40", // TimeZones: Invalid offset
+		"sdp_session_ex_err41", // MediaDescription: Invalid double space
+		"sdp_session_ex_err42", // MediaDescription: Invalid port
+		"sdp_session_ex_err43", // MediaDescription: Invalid number of ports
+		"sdp_session_ex_err44", // Version: No =
+		"sdp_session_ex_err45", // Version: No value
 	}
 	var (
 		s   Session
 		err error
 	)
 	for i, name := range shouldFail {
-		b := loadData(t, name, testNL)
-		s, err = DecodeSession(b, s)
-		if err != nil {
-			t.Fatalf("session %s(%d) err: %s", name, i, err)
-		}
-		m := new(Message)
-		d := NewDecoder(s)
-		err = d.Decode(m)
-		s = s.reset()
-		if err == nil {
-			t.Errorf("%s(%d) should fail", name, i)
-		}
+		t.Run(name, func(t *testing.T) {
+			b := loadData(t, name, testNL)
+			s, err = DecodeSession(b, s)
+			if err != nil {
+				t.Fatalf("session %s(%d) err: %s", name, i, err)
+			}
+			m := new(Message)
+			d := NewDecoder(s)
+			err = d.Decode(m)
+			s = s.reset()
+			if err == nil {
+				t.Errorf("%s(%d) should fail", name, i)
+			}
+		})
 	}
 }

@@ -15,6 +15,4 @@ a=recvonly
 m=audio 49170 RTP/AVP 0
 i=Some audio
 m=video 51372 RTP/AVP 99
-b=AS:66781
-k=prompt
-a=rtpmap:99 h263-1998/90000
+b=

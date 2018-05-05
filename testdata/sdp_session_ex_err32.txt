@@ -1,0 +1,3 @@
+v=0
+o=jdoe NaN 2890842807 IN IP4 10.47.16.5
+s=SDP Seminar

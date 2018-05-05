@@ -606,7 +606,14 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to decode connection data")
 	}
-	isV4 := isIPv4(m.Connection.IP)
+
+	var isV4 bool
+	switch d.section {
+	case sectionMedia:
+		isV4 = isIPv4(d.m.Connection.IP)
+	case sectionSession:
+		isV4 = isIPv4(m.Connection.IP)
+	}
 	if len(second) > 0 {
 		if !isV4 {
 			err := d.newFieldError("unexpected TTL for IPv6")

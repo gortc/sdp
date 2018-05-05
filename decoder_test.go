@@ -316,8 +316,10 @@ func TestDecoder_Errors(t *testing.T) {
 		"sdp_session_ex_err41", // MediaDescription: Invalid double space
 		"sdp_session_ex_err42", // MediaDescription: Invalid port
 		"sdp_session_ex_err43", // MediaDescription: Invalid number of ports
-		"sdp_session_ex_err44", // Version: No =
-		"sdp_session_ex_err45", // Version: No value
+		"sdp_session_ex_err46", // ConnectionData: Invalid TTL in media secion
+		"sdp_session_ex_err47", // ConnectionData: Invalid number of addresses in media secion
+		"sdp_session_ex_err48", // ConnectionData: Invalid number of addresses with ttl in media secion
+		"sdp_session_ex_err49", // ConnectionData: Invalid number of addresses IPV6 in media secion
 	}
 	var (
 		s   Session
@@ -343,7 +345,7 @@ func TestDecoder_Errors(t *testing.T) {
 
 func TestDecoder_ExMediaConnection(t *testing.T) {
 	m := new(Message)
-	tData := loadData(t, "sdp_session_ex_mediac")
+	tData := loadData(t, "sdp_session_ex_mediac", testNL)
 	session, err := DecodeSession(tData, nil)
 	if err != nil {
 		t.Fatal(err)

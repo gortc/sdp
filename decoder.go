@@ -929,8 +929,8 @@ func (d *Decoder) decodeMediaDescription(m *Message) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to decode media description")
 	}
-	if len(p) < 4 {
-		msg := fmt.Sprintf("unexpected subfields count %d < 4", len(p))
+	if len(p) < 3 {
+		msg := fmt.Sprintf("unexpected subfields count %d < 3", len(p))
 		err = newSectionDecodeError(d.section, msg)
 		return errors.Wrap(err, "failed to decode media description")
 	}
@@ -950,8 +950,10 @@ func (d *Decoder) decodeMediaDescription(m *Message) error {
 	if err = decodeString(p[2], &desc.Protocol); err != nil {
 		return errors.Wrap(err, "failed to decode protocol")
 	}
-	desc.Format = string(bytes.Join(p[3:], []byte{fieldsDelimiter}))
-	d.m.Description = desc
+	if len(p) > 3 {
+		desc.Format = string(bytes.Join(p[3:], []byte{fieldsDelimiter}))
+		d.m.Description = desc
+	}
 	return nil
 }
 

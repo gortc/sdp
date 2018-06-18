@@ -365,3 +365,16 @@ func TestDecoder_ExMediaConnection(t *testing.T) {
 		}
 	}
 }
+
+func TestDecoder_NoMediaFmt(t *testing.T) {
+	m := new(Message)
+	tData := loadData(t, "sdp_session_no_media_fmt", testNL)
+	session, err := DecodeSession(tData, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoder := NewDecoder(session)
+	if err := decoder.Decode(m); err != nil {
+		t.Fatal(err)
+	}
+}

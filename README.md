@@ -10,7 +10,7 @@ In alpha stage.
 
 ### Examples
 See [examples](https://github.com/gortc/sdp/tree/master/examples) folder.
-Also there is [online SDP example](https://cydev.ru/x/sdp/) that gets
+Also there is [online SDP example](https://gortc.io/x/sdp/) that gets
 `RTCPeerConnection.localDescription.sdp` using WebRTC, 
 sends it to server, decodes as `sdp.Session` and renders it on web page.
 

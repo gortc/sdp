@@ -1,0 +1,12 @@
+v=0
+o=- 3738069915 3738069917 IN IP4 166.34.75.86
+s=-
+c=IN IP4 166.34.75.86
+m=audio 15160 RTP/AVP
+c=IN IP4 166.34.75.86
+a=sendonly
+a=label:1
+m=audio 15162 RTP/AVP
+c=IN IP4 166.34.75.86
+a=sendonly
+a=label:2

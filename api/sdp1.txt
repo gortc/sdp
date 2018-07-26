@@ -1,0 +1,158 @@
+pkg github.com/gortc/sdp, const BandwidthApplicationSpecific = "AS"
+pkg github.com/gortc/sdp, const BandwidthApplicationSpecific BandwidthType
+pkg github.com/gortc/sdp, const BandwidthConferenceTotal = "CT"
+pkg github.com/gortc/sdp, const BandwidthConferenceTotal BandwidthType
+pkg github.com/gortc/sdp, const TypeAttribute = 97
+pkg github.com/gortc/sdp, const TypeAttribute Type
+pkg github.com/gortc/sdp, const TypeBandwidth = 98
+pkg github.com/gortc/sdp, const TypeBandwidth Type
+pkg github.com/gortc/sdp, const TypeConnectionData = 99
+pkg github.com/gortc/sdp, const TypeConnectionData Type
+pkg github.com/gortc/sdp, const TypeEmail = 101
+pkg github.com/gortc/sdp, const TypeEmail Type
+pkg github.com/gortc/sdp, const TypeEncryptionKey = 107
+pkg github.com/gortc/sdp, const TypeEncryptionKey Type
+pkg github.com/gortc/sdp, const TypeMediaDescription = 109
+pkg github.com/gortc/sdp, const TypeMediaDescription Type
+pkg github.com/gortc/sdp, const TypeOrigin = 111
+pkg github.com/gortc/sdp, const TypeOrigin Type
+pkg github.com/gortc/sdp, const TypePhone = 112
+pkg github.com/gortc/sdp, const TypePhone Type
+pkg github.com/gortc/sdp, const TypeProtocolVersion = 118
+pkg github.com/gortc/sdp, const TypeProtocolVersion Type
+pkg github.com/gortc/sdp, const TypeRepeatTimes = 114
+pkg github.com/gortc/sdp, const TypeRepeatTimes Type
+pkg github.com/gortc/sdp, const TypeSessionInformation = 105
+pkg github.com/gortc/sdp, const TypeSessionInformation Type
+pkg github.com/gortc/sdp, const TypeSessionName = 115
+pkg github.com/gortc/sdp, const TypeSessionName Type
+pkg github.com/gortc/sdp, const TypeTimeZones = 122
+pkg github.com/gortc/sdp, const TypeTimeZones Type
+pkg github.com/gortc/sdp, const TypeTiming = 116
+pkg github.com/gortc/sdp, const TypeTiming Type
+pkg github.com/gortc/sdp, const TypeURI = 117
+pkg github.com/gortc/sdp, const TypeURI Type
+pkg github.com/gortc/sdp, func DecodeSession([]uint8, Session) (Session, error)
+pkg github.com/gortc/sdp, func NTPToTime(uint64) time.Time
+pkg github.com/gortc/sdp, func NewDecoder(Session) Decoder
+pkg github.com/gortc/sdp, func TimeToNTP(time.Time) uint64
+pkg github.com/gortc/sdp, method (*Decoder) Decode(*Message) error
+pkg github.com/gortc/sdp, method (*Line) Decode([]uint8) error
+pkg github.com/gortc/sdp, method (*Media) AddAttribute(string, ...string)
+pkg github.com/gortc/sdp, method (*Media) AddFlag(string)
+pkg github.com/gortc/sdp, method (*Media) Attribute(string) string
+pkg github.com/gortc/sdp, method (*Media) Flag(string) bool
+pkg github.com/gortc/sdp, method (*Message) AddAttribute(string, string)
+pkg github.com/gortc/sdp, method (*Message) AddFlag(string)
+pkg github.com/gortc/sdp, method (*Message) Append(Session) Session
+pkg github.com/gortc/sdp, method (Attributes) Flag(string) bool
+pkg github.com/gortc/sdp, method (Attributes) Value(string) string
+pkg github.com/gortc/sdp, method (Attributes) Values(string) []string
+pkg github.com/gortc/sdp, method (ConnectionData) Blank() bool
+pkg github.com/gortc/sdp, method (ConnectionData) ConnectionAddress() string
+pkg github.com/gortc/sdp, method (ConnectionData) Equal(ConnectionData) bool
+pkg github.com/gortc/sdp, method (ConnectionData) String() string
+pkg github.com/gortc/sdp, method (DecodeError) Error() string
+pkg github.com/gortc/sdp, method (Encryption) Blank() bool
+pkg github.com/gortc/sdp, method (Encryption) Equal(Encryption) bool
+pkg github.com/gortc/sdp, method (Line) AppendTo([]uint8) []uint8
+pkg github.com/gortc/sdp, method (Line) Equal(Line) bool
+pkg github.com/gortc/sdp, method (Line) String() string
+pkg github.com/gortc/sdp, method (Message) Attribute(string) string
+pkg github.com/gortc/sdp, method (Message) End() time.Time
+pkg github.com/gortc/sdp, method (Message) Flag(string) bool
+pkg github.com/gortc/sdp, method (Message) Start() time.Time
+pkg github.com/gortc/sdp, method (Origin) Equal(Origin) bool
+pkg github.com/gortc/sdp, method (Session) AddAttribute(string, ...string) Session
+pkg github.com/gortc/sdp, method (Session) AddBandwidth(BandwidthType, int) Session
+pkg github.com/gortc/sdp, method (Session) AddConnectionData(ConnectionData) Session
+pkg github.com/gortc/sdp, method (Session) AddConnectionDataIP(net.IP) Session
+pkg github.com/gortc/sdp, method (Session) AddEmail(string) Session
+pkg github.com/gortc/sdp, method (Session) AddEncryption(Encryption) Session
+pkg github.com/gortc/sdp, method (Session) AddEncryptionKey(string, string) Session
+pkg github.com/gortc/sdp, method (Session) AddEncryptionMethod(string) Session
+pkg github.com/gortc/sdp, method (Session) AddFlag(string) Session
+pkg github.com/gortc/sdp, method (Session) AddLine(Type, string) Session
+pkg github.com/gortc/sdp, method (Session) AddMediaDescription(MediaDescription) Session
+pkg github.com/gortc/sdp, method (Session) AddOrigin(Origin) Session
+pkg github.com/gortc/sdp, method (Session) AddPhone(string) Session
+pkg github.com/gortc/sdp, method (Session) AddRaw(int32, string) Session
+pkg github.com/gortc/sdp, method (Session) AddRepeatTimes(time.Duration, time.Duration, ...time.Duration) Session
+pkg github.com/gortc/sdp, method (Session) AddRepeatTimesCompact(time.Duration, time.Duration, ...time.Duration) Session
+pkg github.com/gortc/sdp, method (Session) AddSessionInfo(string) Session
+pkg github.com/gortc/sdp, method (Session) AddSessionName(string) Session
+pkg github.com/gortc/sdp, method (Session) AddTimeZones(...TimeZone) Session
+pkg github.com/gortc/sdp, method (Session) AddTiming(time.Time, time.Time) Session
+pkg github.com/gortc/sdp, method (Session) AddTimingNTP(uint64, uint64) Session
+pkg github.com/gortc/sdp, method (Session) AddURI(string) Session
+pkg github.com/gortc/sdp, method (Session) AddVersion(int) Session
+pkg github.com/gortc/sdp, method (Session) AppendTo([]uint8) []uint8
+pkg github.com/gortc/sdp, method (Session) Equal(Session) bool
+pkg github.com/gortc/sdp, method (Type) String() string
+pkg github.com/gortc/sdp, type Attributes map[string][]string
+pkg github.com/gortc/sdp, type BandwidthType string
+pkg github.com/gortc/sdp, type Bandwidths map[BandwidthType]int
+pkg github.com/gortc/sdp, type ConnectionData struct
+pkg github.com/gortc/sdp, type ConnectionData struct, AddressType string
+pkg github.com/gortc/sdp, type ConnectionData struct, Addresses uint8
+pkg github.com/gortc/sdp, type ConnectionData struct, IP net.IP
+pkg github.com/gortc/sdp, type ConnectionData struct, NetworkType string
+pkg github.com/gortc/sdp, type ConnectionData struct, TTL uint8
+pkg github.com/gortc/sdp, type DecodeError struct
+pkg github.com/gortc/sdp, type DecodeError struct, Place string
+pkg github.com/gortc/sdp, type DecodeError struct, Reason string
+pkg github.com/gortc/sdp, type Decoder struct
+pkg github.com/gortc/sdp, type Encryption struct
+pkg github.com/gortc/sdp, type Encryption struct, Key string
+pkg github.com/gortc/sdp, type Encryption struct, Method string
+pkg github.com/gortc/sdp, type Line struct
+pkg github.com/gortc/sdp, type Line struct, Type Type
+pkg github.com/gortc/sdp, type Line struct, Value []uint8
+pkg github.com/gortc/sdp, type Media struct
+pkg github.com/gortc/sdp, type Media struct, Attributes Attributes
+pkg github.com/gortc/sdp, type Media struct, Bandwidths Bandwidths
+pkg github.com/gortc/sdp, type Media struct, Connection ConnectionData
+pkg github.com/gortc/sdp, type Media struct, Description MediaDescription
+pkg github.com/gortc/sdp, type Media struct, Encryption Encryption
+pkg github.com/gortc/sdp, type Media struct, Title string
+pkg github.com/gortc/sdp, type MediaDescription struct
+pkg github.com/gortc/sdp, type MediaDescription struct, Format string
+pkg github.com/gortc/sdp, type MediaDescription struct, Port int
+pkg github.com/gortc/sdp, type MediaDescription struct, PortsNumber int
+pkg github.com/gortc/sdp, type MediaDescription struct, Protocol string
+pkg github.com/gortc/sdp, type MediaDescription struct, Type string
+pkg github.com/gortc/sdp, type Medias []Media
+pkg github.com/gortc/sdp, type Message struct
+pkg github.com/gortc/sdp, type Message struct, Attributes Attributes
+pkg github.com/gortc/sdp, type Message struct, BandwidthType BandwidthType
+pkg github.com/gortc/sdp, type Message struct, Bandwidths map[BandwidthType]int
+pkg github.com/gortc/sdp, type Message struct, Connection ConnectionData
+pkg github.com/gortc/sdp, type Message struct, Email string
+pkg github.com/gortc/sdp, type Message struct, Encryption Encryption
+pkg github.com/gortc/sdp, type Message struct, Info string
+pkg github.com/gortc/sdp, type Message struct, Medias Medias
+pkg github.com/gortc/sdp, type Message struct, Name string
+pkg github.com/gortc/sdp, type Message struct, Origin Origin
+pkg github.com/gortc/sdp, type Message struct, Phone string
+pkg github.com/gortc/sdp, type Message struct, TZAdjustments []TimeZone
+pkg github.com/gortc/sdp, type Message struct, Timing []Timing
+pkg github.com/gortc/sdp, type Message struct, URI string
+pkg github.com/gortc/sdp, type Message struct, Version int
+pkg github.com/gortc/sdp, type Origin struct
+pkg github.com/gortc/sdp, type Origin struct, Address string
+pkg github.com/gortc/sdp, type Origin struct, AddressType string
+pkg github.com/gortc/sdp, type Origin struct, NetworkType string
+pkg github.com/gortc/sdp, type Origin struct, SessionID int
+pkg github.com/gortc/sdp, type Origin struct, SessionVersion int
+pkg github.com/gortc/sdp, type Origin struct, Username string
+pkg github.com/gortc/sdp, type Session []Line
+pkg github.com/gortc/sdp, type TimeZone struct
+pkg github.com/gortc/sdp, type TimeZone struct, Offset time.Duration
+pkg github.com/gortc/sdp, type TimeZone struct, Start time.Time
+pkg github.com/gortc/sdp, type Timing struct
+pkg github.com/gortc/sdp, type Timing struct, Active time.Duration
+pkg github.com/gortc/sdp, type Timing struct, End time.Time
+pkg github.com/gortc/sdp, type Timing struct, Offsets []time.Duration
+pkg github.com/gortc/sdp, type Timing struct, Repeat time.Duration
+pkg github.com/gortc/sdp, type Timing struct, Start time.Time
+pkg github.com/gortc/sdp, type Type int32

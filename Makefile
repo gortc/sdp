@@ -22,3 +22,5 @@ profile:
 	go tool pprof -alloc_space sdp.test mem.out
 profile-cpu:
 	go tool pprof sdp.test cpu.out
+check-api:
+	api -c api/sdp1.txt github.com/gortc/sdp

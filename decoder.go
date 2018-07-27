@@ -990,7 +990,9 @@ func (d *Decoder) decodeField(m *Message) error {
 	case TypeMediaDescription:
 		return d.decodeMediaDescription(m)
 	default:
-		panic("unexpected field")
+		// d.t is explicitly checked before calling decodeField,
+		// so this code must be unreachable.
+		panic("BUG: unexpected filed type in decodeField")
 	}
 }
 

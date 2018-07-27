@@ -396,3 +396,17 @@ func TestSectionOverflows(t *testing.T) {
 		fmt.Print(getOrdering(section(123)))
 	})
 }
+
+func TestDecoderUnexpectedField(t *testing.T) {
+	mustBug := func(t *testing.T) {
+		if err := recover(); err != "BUG: unexpected filed type in decodeField" {
+			t.Error("should panic")
+		}
+	}
+	d := NewDecoder(Session{})
+	t.Run("ShouldPanic", func(t *testing.T) {
+		defer mustBug(t)
+		d.t = Type('1')
+		d.decodeField(nil)
+	})
+}

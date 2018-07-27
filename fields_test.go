@@ -341,3 +341,20 @@ func TestAppendUint(t *testing.T) {
 		}
 	})
 }
+
+func TestAppendByte(t *testing.T) {
+	for _, tc := range []struct{
+		in byte
+		out []byte
+	}{
+		{0, []byte("0")},
+		{1, []byte("1")},
+		{10, []byte("10")},
+	} {
+		t.Run(fmt.Sprint(tc.in), func(t *testing.T) {
+			if !bytes.Equal(appendByte(nil, tc.in), tc.out) {
+				t.Error("not equal")
+			}
+		})
+	}
+}

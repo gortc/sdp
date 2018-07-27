@@ -5,7 +5,7 @@
 
 # SDP go implementation
 Package sdp implements SDP: Session Description Protocol [[RFC 4566](https://tools.ietf.org/html/rfc4566)].
-Complies to [gortc principles](https://github.com/gortc/dev/blob/master/README.md#principles) as core package. In alpha stage.
+Complies to [gortc principles](https://github.com/gortc/dev/blob/master/README.md#principles) as core package.
 
 ### Examples
 See [examples](https://github.com/gortc/sdp/tree/master/examples) folder.

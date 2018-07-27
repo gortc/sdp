@@ -289,10 +289,6 @@ func isExpected(t Type, s section, pos int) error {
 			//logger.Printf("t->s")
 			return nil
 		}
-		if isExpected(t, sectionMedia, 0) == nil {
-			//logger.Printf("t->m")
-			return nil
-		}
 	case sectionMedia:
 		if pos != 0 && isExpected(t, sectionMedia, 0) == nil {
 			//logger.Printf("m->m")

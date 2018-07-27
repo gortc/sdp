@@ -6,7 +6,7 @@ go:
 before_install:
   - go get github.com/mattn/goveralls
   - go get golang.org/x/tools/cmd/cover
-  - go get github.com/gortc/api
+  - go get gortc.io/api
 
 install: true
 

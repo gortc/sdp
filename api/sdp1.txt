@@ -156,3 +156,4 @@ pkg github.com/gortc/sdp, type Timing struct, Offsets []time.Duration
 pkg github.com/gortc/sdp, type Timing struct, Repeat time.Duration
 pkg github.com/gortc/sdp, type Timing struct, Start time.Time
 pkg github.com/gortc/sdp, type Type int32
+pkg github.com/gortc/sdp, var ErrFailedToDecodeIP error

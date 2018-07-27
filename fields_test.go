@@ -323,3 +323,21 @@ func TestNTP(t *testing.T) {
 		}
 	}
 }
+
+func TestAppendUint(t *testing.T) {
+	t.Run("Positive", func(t *testing.T) {
+		if !bytes.Equal(appendUint(nil, 1), []byte("1")) {
+			t.Error("not equal")
+		}
+	})
+	t.Run("Panic", func(t *testing.T) {
+		defer func() {
+			if err := recover(); err == nil {
+				t.Error("should panic")
+			}
+		}()
+		if bytes.Equal(appendUint(nil, -1), []byte("-1")) {
+			t.Error("should not equal")
+		}
+	})
+}

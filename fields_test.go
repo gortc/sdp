@@ -515,3 +515,51 @@ func TestConnectionData_String(t *testing.T) {
 		})
 	}
 }
+
+func TestOrigin_Equal(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		a, b  Origin
+		value bool
+	}{
+		{
+			name: "blank", value: true,
+		},
+		{
+			a:    Origin{Username: "a"},
+			b:    Origin{Username: "b"},
+			name: "Username", value: false,
+		},
+		{
+			a:    Origin{SessionID: 1},
+			b:    Origin{SessionID: 2},
+			name: "SessionID", value: false,
+		},
+		{
+			a:    Origin{NetworkType: "a"},
+			b:    Origin{NetworkType: "b"},
+			name: "NetworkType", value: false,
+		},
+		{
+			a:    Origin{AddressType: "a"},
+			b:    Origin{AddressType: "b"},
+			name: "AddressType", value: false,
+		},
+		{
+			a:    Origin{Address: "a"},
+			b:    Origin{Address: "b"},
+			name: "Address", value: false,
+		},
+		{
+			a:    Origin{SessionVersion: 1},
+			b:    Origin{SessionVersion: 2},
+			name: "SessionVersion", value: false,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if v := tc.a.Equal(tc.b); v != tc.value {
+				t.Error("unexpected equal result")
+			}
+		})
+	}
+}

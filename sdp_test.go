@@ -304,3 +304,9 @@ func TestSession_Equal(t *testing.T) {
 		})
 	}
 }
+
+func TestDecodeError_Error(t *testing.T) {
+	if newDecodeError("p", "r").Error() != "DecodeError in p: r" {
+		t.Error("bad decode error description")
+	}
+}

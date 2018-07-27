@@ -243,7 +243,7 @@ func (c ConnectionData) ConnectionAddress() string {
 
 func (c ConnectionData) String() string {
 	return fmt.Sprintf("%s %s %s",
-		c.NetworkType, c.AddressType, c.ConnectionAddress(),
+		c.getAddressType(), c.getAddressType(), c.ConnectionAddress(),
 	)
 }
 

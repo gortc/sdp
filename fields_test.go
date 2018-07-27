@@ -481,3 +481,37 @@ func TestGetAddressType(t *testing.T) {
 		})
 	}
 }
+
+func TestConnectionData_String(t *testing.T) {
+	for _, tc := range []struct {
+		in  ConnectionData
+		out string
+	}{
+		{
+			out: "IP4 IP4 <NIL>",
+		},
+		{
+			in: ConnectionData{
+				Addresses: 1,
+				TTL:       10,
+				IP:        net.IPv4(127, 0, 0, 2),
+			},
+			out: "IP4 IP4 127.0.0.2/10/1",
+		},
+		{
+			in: ConnectionData{
+				NetworkType: "IP4",
+				Addresses:   1,
+				TTL:         10,
+				IP:          net.IPv4(127, 0, 0, 1),
+			},
+			out: "IP4 IP4 127.0.0.1/10/1",
+		},
+	} {
+		t.Run(tc.out, func(t *testing.T) {
+			if v := tc.in.String(); v != tc.out {
+				t.Error(v)
+			}
+		})
+	}
+}

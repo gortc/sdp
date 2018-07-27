@@ -744,9 +744,8 @@ func (d *Decoder) decodeTimingField(m *Message) error {
 	return nil
 }
 
-func decodeString(v []byte, s *string) error {
+func decodeString(v []byte, s *string) {
 	*s = b2s(v)
-	return nil
 }
 
 func decodeInt(v []byte, i *int) error {
@@ -797,24 +796,16 @@ func (d *Decoder) decodeOrigin(m *Message) error {
 		return errors.Wrap(err, "failed to decode origin")
 	}
 	o := m.Origin
-	if err = decodeString(p[0], &o.Username); err != nil {
-		return errors.Wrap(err, "failed to decode username")
-	}
+	decodeString(p[0], &o.Username)
 	if err = decodeInt(p[1], &o.SessionID); err != nil {
 		return errors.Wrap(err, "failed to decode sess-id")
 	}
 	if err = decodeInt(p[2], &o.SessionVersion); err != nil {
 		return errors.Wrap(err, "failed to decode sess-version")
 	}
-	if err = decodeString(p[3], &o.NetworkType); err != nil {
-		return errors.Wrap(err, "failed to decode net-type")
-	}
-	if err = decodeString(p[4], &o.AddressType); err != nil {
-		return errors.Wrap(err, "failed to decode addres-type")
-	}
-	if err = decodeString(p[5], &o.Address); err != nil {
-		return errors.Wrap(err, "failed to decode address")
-	}
+	decodeString(p[3], &o.NetworkType)
+	decodeString(p[4], &o.AddressType)
+	decodeString(p[5], &o.Address)
 	m.Origin = o
 	return nil
 }
@@ -934,9 +925,7 @@ func (d *Decoder) decodeMediaDescription(m *Message) error {
 		err = newSectionDecodeError(d.section, msg)
 		return errors.Wrap(err, "failed to decode media description")
 	}
-	if err = decodeString(p[0], &desc.Type); err != nil {
-		return errors.Wrap(err, "failed to decode media type")
-	}
+	decodeString(p[0], &desc.Type)
 	// port: port/ports_number
 	pp := bytes.Split(p[1], []byte{'/'})
 	if err = decodeInt(pp[0], &desc.Port); err != nil {
@@ -947,9 +936,7 @@ func (d *Decoder) decodeMediaDescription(m *Message) error {
 			return errors.Wrap(err, "failed to decode ports number")
 		}
 	}
-	if err = decodeString(p[2], &desc.Protocol); err != nil {
-		return errors.Wrap(err, "failed to decode protocol")
-	}
+	decodeString(p[2], &desc.Protocol)
 	if len(p) > 3 {
 		desc.Format = string(bytes.Join(p[3:], []byte{fieldsDelimiter}))
 		d.m.Description = desc

@@ -48,11 +48,7 @@ func appendByte(v []byte, i byte) []byte {
 	if i == 0 {
 		return appendRune(v, '0')
 	}
-	if i > 0 {
-		return appendUint(v, int(i))
-	}
-	// ALLOCATIONS: suboptimal. BenchmarkAppendByte.
-	return append(v, strconv.Itoa(int(i))...)
+	return appendUint(v, int(i))
 }
 
 func appendJoinStrings(b []byte, v ...string) []byte {

@@ -363,3 +363,8 @@ func TestSession_AddRaw(t *testing.T) {
 	s := new(Session).AddRaw('α', "räw")
 	shouldDecodeExpS(t, s, "raw")
 }
+
+func TestSession_AddLine(t *testing.T) {
+	s := new(Session).AddLine(TypeEmail, "test@test.com")
+	shouldDecodeExpS(t, s, "line")
+}

@@ -4,6 +4,7 @@ lint:
 	@gometalinter -e "\.String\(\).+gocyclo" \
 		-e "_test.go.+(gocyclo|errcheck|dupl)" \
 		-e "isZeroOrMore is a pure function but its return value is ignored" \
+		-e "isOptional is a pure function but its return value is ignored" \
 		--enable="lll" --line-length=100 \
 		--enable="gofmt" \
 		--disable=gocyclo \

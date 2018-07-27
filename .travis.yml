@@ -4,8 +4,6 @@ go:
   - 1.10.x
   
 before_install:
-  - go get github.com/mattn/goveralls
-  - go get golang.org/x/tools/cmd/cover
   - go get gortc.io/api
   - go get github.com/alecthomas/gometalinter
   - gometalinter --install
@@ -13,6 +11,9 @@ before_install:
 install: true
 
 script:
-  - $HOME/gopath/bin/goveralls -service=travis-ci -v
+  - ./go.test.sh
   - make check-api
   - make lint
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)

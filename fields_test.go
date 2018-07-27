@@ -368,3 +368,72 @@ func TestSession_AddLine(t *testing.T) {
 	s := new(Session).AddLine(TypeEmail, "test@test.com")
 	shouldDecodeExpS(t, s, "line")
 }
+
+func TestConnectionData_Equal(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		a, b  ConnectionData
+		value bool
+	}{
+		{
+			"blank",
+			ConnectionData{}, ConnectionData{}, true,
+		},
+		{
+			name: "AddressType",
+			a: ConnectionData{
+				AddressType: "1",
+			},
+			b: ConnectionData{
+				AddressType: "2",
+			},
+			value: false,
+		},
+		{
+			name: "IP",
+			a: ConnectionData{
+				AddressType: "1",
+				IP: net.IPv4(127, 0, 0, 1),
+			},
+			b: ConnectionData{
+				AddressType: "1",
+				IP: net.IPv4(127, 0, 0, 2),
+			},
+			value: false,
+		},
+		{
+			name: "TTL",
+			a: ConnectionData{
+				AddressType: "1",
+				IP: net.IPv4(127, 0, 0, 1),
+				TTL: 1,
+			},
+			b: ConnectionData{
+				AddressType: "1",
+				IP: net.IPv4(127, 0, 0, 1),
+			},
+			value: false,
+		},
+		{
+			name: "Addresses",
+			a: ConnectionData{
+				AddressType: "1",
+				IP: net.IPv4(127, 0, 0, 1),
+				TTL: 1,
+				Addresses: 10,
+			},
+			b: ConnectionData{
+				AddressType: "1",
+				TTL: 1,
+				IP: net.IPv4(127, 0, 0, 1),
+			},
+			value: false,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if v := tc.a.Equal(tc.b); v != tc.value {
+				t.Errorf("%s.Equal(%s) %v != %v", tc.a, tc.b, v, tc.value)
+			}
+		})
+	}
+}

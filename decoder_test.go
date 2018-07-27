@@ -1,11 +1,11 @@
 package sdp
 
 import (
-		"log"
+	"fmt"
+	"log"
 	"net"
 	"testing"
 	"time"
-	"fmt"
 )
 
 func TestDecodeInterval(t *testing.T) {

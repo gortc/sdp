@@ -270,10 +270,6 @@ func isExpected(t Type, s section, pos int) error {
 			if isOptional(expected) {
 				continue
 			}
-			if isZeroOrMore(expected) {
-				//logger.Printf("%s is not necessary", expected)
-				continue
-			}
 		}
 	}
 

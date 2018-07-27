@@ -343,8 +343,8 @@ func TestAppendUint(t *testing.T) {
 }
 
 func TestAppendByte(t *testing.T) {
-	for _, tc := range []struct{
-		in byte
+	for _, tc := range []struct {
+		in  byte
 		out []byte
 	}{
 		{0, []byte("0")},
@@ -357,4 +357,9 @@ func TestAppendByte(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestSession_AddRaw(t *testing.T) {
+	s := new(Session).AddRaw('α', "räw")
+	shouldDecodeExpS(t, s, "raw")
 }

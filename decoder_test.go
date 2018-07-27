@@ -1,10 +1,11 @@
 package sdp
 
 import (
-	"log"
+		"log"
 	"net"
 	"testing"
 	"time"
+	"fmt"
 )
 
 func TestDecodeInterval(t *testing.T) {
@@ -377,4 +378,20 @@ func TestDecoder_NoMediaFmt(t *testing.T) {
 	if err := decoder.Decode(m); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestSectionOverflows(t *testing.T) {
+	mustOverflow := func(t *testing.T) {
+		if err := recover(); err != "BUG: section overflow" {
+			t.Error("should panic")
+		}
+	}
+	t.Run("String", func(t *testing.T) {
+		defer mustOverflow(t)
+		fmt.Print(section(123).String())
+	})
+	t.Run("Ordering", func(t *testing.T) {
+		defer mustOverflow(t)
+		fmt.Print(getOrdering(section(123)))
+	})
 }

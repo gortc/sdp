@@ -214,7 +214,7 @@ func (s section) String() string {
 	case sectionMedia:
 		return "m"
 	default:
-		panic("unexpected")
+		panic("BUG: section overflow")
 	}
 }
 
@@ -319,7 +319,7 @@ func getOrdering(s section) ordering {
 	case sectionTime:
 		return orderingTime
 	default:
-		panic("unexpected section")
+		panic("BUG: section overflow")
 	}
 }
 

@@ -321,6 +321,7 @@ func TestDecoder_Errors(t *testing.T) {
 		"sdp_session_ex_err49", // ConnectionData: Invalid number of addresses IPV6 in media secion
 		"sdp_session_ex_err50", // RepeatTimes: Unexpected transition
 		"sdp_session_ex_err51", // Media: Unexpected transition
+		"sdp_session_ex_err52", // ConnectionData: Invalid IPv4
 	}
 	var (
 		s   Session

@@ -1052,5 +1052,5 @@ func (d *Decoder) Decode(m *Message) error {
 // Note it may break if string and/or slice header will change
 // in the future go versions.
 func b2s(b []byte) string {
-	return *(*string)(unsafe.Pointer(&b))
+	return *(*string)(unsafe.Pointer(&b)) // #nosec
 }

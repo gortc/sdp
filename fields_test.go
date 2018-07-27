@@ -393,11 +393,11 @@ func TestConnectionData_Equal(t *testing.T) {
 			name: "IP",
 			a: ConnectionData{
 				AddressType: "1",
-				IP: net.IPv4(127, 0, 0, 1),
+				IP:          net.IPv4(127, 0, 0, 1),
 			},
 			b: ConnectionData{
 				AddressType: "1",
-				IP: net.IPv4(127, 0, 0, 2),
+				IP:          net.IPv4(127, 0, 0, 2),
 			},
 			value: false,
 		},
@@ -405,12 +405,12 @@ func TestConnectionData_Equal(t *testing.T) {
 			name: "TTL",
 			a: ConnectionData{
 				AddressType: "1",
-				IP: net.IPv4(127, 0, 0, 1),
-				TTL: 1,
+				IP:          net.IPv4(127, 0, 0, 1),
+				TTL:         1,
 			},
 			b: ConnectionData{
 				AddressType: "1",
-				IP: net.IPv4(127, 0, 0, 1),
+				IP:          net.IPv4(127, 0, 0, 1),
 			},
 			value: false,
 		},
@@ -418,14 +418,14 @@ func TestConnectionData_Equal(t *testing.T) {
 			name: "Addresses",
 			a: ConnectionData{
 				AddressType: "1",
-				IP: net.IPv4(127, 0, 0, 1),
-				TTL: 1,
-				Addresses: 10,
+				IP:          net.IPv4(127, 0, 0, 1),
+				TTL:         1,
+				Addresses:   10,
 			},
 			b: ConnectionData{
 				AddressType: "1",
-				TTL: 1,
-				IP: net.IPv4(127, 0, 0, 1),
+				TTL:         1,
+				IP:          net.IPv4(127, 0, 0, 1),
 			},
 			value: false,
 		},
@@ -433,6 +433,50 @@ func TestConnectionData_Equal(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			if v := tc.a.Equal(tc.b); v != tc.value {
 				t.Errorf("%s.Equal(%s) %v != %v", tc.a, tc.b, v, tc.value)
+			}
+		})
+	}
+}
+
+func TestGetAddressType(t *testing.T) {
+	for _, tc := range []struct {
+		addr        string
+		addressType string
+		out         string
+	}{
+		{
+			out: "IP4",
+		},
+		{
+			addr: "gortc.io",
+			out:  "IP4",
+		},
+		{
+			addr:        "gortc.io",
+			addressType: "IP6",
+			out:         "IP6",
+		},
+		{
+			addr: "127.0.0.1",
+			out:  "IP4",
+		},
+		{
+			addr: "localhost",
+			out:  "IP4",
+		},
+	} {
+		name := "blank"
+		if tc.addr != "" {
+			name = tc.addr
+		}
+		if tc.addressType != "" {
+			name = name + "-" + tc.addressType
+		}
+		t.Run(name, func(t *testing.T) {
+			if v := getAddressType(tc.addr, tc.addressType); v != tc.out {
+				t.Errorf("getAddressType(%q,%q) %q != %q",
+					tc.addr, tc.addressType, v, tc.out,
+				)
 			}
 		})
 	}

@@ -265,7 +265,7 @@ func (s *sliceScanner) Scan() bool {
 // lines and leading/trialing whitespace are ignored.
 //
 // If s is passed, it will be reused with its lines.
-// It is safe to corrupt b.
+// It is safe to mutate b.
 func DecodeSession(b []byte, s Session) (Session, error) {
 	var (
 		line Line

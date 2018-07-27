@@ -507,9 +507,16 @@ func (d *Decoder) decodeEncryption(m *Message) error {
 	return nil
 }
 
+// ErrFailedToDecodeIP means that decoder failed to parse IP.
+var ErrFailedToDecodeIP = errors.New("invalid IP")
+
 func decodeIP(dst net.IP, v []byte) (net.IP, error) {
 	// ALLOCATIONS: suboptimal.
-	return net.ParseIP(string(v)), nil
+	ip := net.ParseIP(string(v))
+	if ip == nil {
+		return dst, ErrFailedToDecodeIP
+	}
+	return ip, nil
 }
 
 func decodeByte(dst []byte) (byte, error) {

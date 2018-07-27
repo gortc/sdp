@@ -24,4 +24,4 @@ profile:
 profile-cpu:
 	go tool pprof sdp.test cpu.out
 check-api:
-	api -c api/sdp1.txt github.com/gortc/sdp
+	api -c api/sdp1.txt -next api/next.txt github.com/gortc/sdp

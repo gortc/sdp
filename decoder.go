@@ -53,7 +53,7 @@ type Message struct {
 	TZAdjustments []TimeZone
 }
 
-// Timing wraps "repeat times" and 	"timing" information.
+// Timing wraps "repeat times" and "timing" information.
 type Timing struct {
 	Start   time.Time
 	End     time.Time

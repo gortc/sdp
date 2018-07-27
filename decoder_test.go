@@ -421,3 +421,16 @@ func TestDecoderNettypeEmpty(t *testing.T) {
 		t.Error("should error")
 	}
 }
+
+func TestDecodeLastTiming(t *testing.T) {
+	m := new(Message)
+	tData := loadData(t, "sdp_session_ex_lasttiming", testNL)
+	session, err := DecodeSession(tData, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	decoder := NewDecoder(session)
+	if err := decoder.Decode(m); err != nil {
+		t.Fatal(err)
+	}
+}

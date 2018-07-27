@@ -411,3 +411,11 @@ func TestDecoderUnexpectedField(t *testing.T) {
 		d.decodeField(nil)
 	})
 }
+
+func TestDecoderNettypeEmpty(t *testing.T) {
+	d := NewDecoder(Session{})
+	m := &Message{}
+	if err := d.decodeConnectionData(m); err == nil {
+		t.Error("should error")
+	}
+}

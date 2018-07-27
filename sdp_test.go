@@ -268,3 +268,39 @@ func TestDecodeSession_Errors(t *testing.T) {
 		})
 	}
 }
+
+func TestSession_Equal(t *testing.T) {
+	for _, tc := range []struct {
+		a, b  Session
+		name  string
+		value bool
+	}{
+		{
+			name:  "blank",
+			value: true,
+		},
+		{
+			name:  "length",
+			a:     Session{}.AddRaw('a', "b"),
+			value: false,
+		},
+		{
+			name:  "value",
+			a:     Session{}.AddRaw('a', "b"),
+			b:     Session{}.AddRaw('a', "a"),
+			value: false,
+		},
+		{
+			name:  "type",
+			a:     Session{}.AddRaw('a', "b"),
+			b:     Session{}.AddRaw('b', "a"),
+			value: false,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if v := tc.a.Equal(tc.b); v != tc.value {
+				t.Error("unexpected value")
+			}
+		})
+	}
+}

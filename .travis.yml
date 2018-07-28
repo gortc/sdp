@@ -2,7 +2,13 @@ language: go
 
 go:
   - 1.10.x
-  
+  - master
+
+matrix:
+  allow_failures:
+  - go: master
+  fast_finish: true
+
 before_install:
   - go get gortc.io/api
   - go get github.com/alecthomas/gometalinter

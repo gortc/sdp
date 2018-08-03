@@ -3,8 +3,8 @@ version: '3'
 services:
   browser:
     build:
-      dockerfile: Dockerfile
-      context: .
+      dockerfile: e2e/Dockerfile
+      context: ../.
     security_opt:
-      - seccomp:./chrome.json
+      - seccomp:"chrome.json"
     shm_size: 1024m

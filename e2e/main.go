@@ -3,20 +3,21 @@ package main
 import (
 	"context"
 	"flag"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
 	"github.com/gortc/sdp"
-	"io/ioutil"
 )
 
 var (
 	bin      = flag.String("b", "/usr/bin/google-chrome", "path to binary")
 	headless = flag.Bool("headless", true, "headless mode")
-	httpAddr = flag.String("addr", "localhost:5568", "http endpoint to listen")
+	httpAddr = flag.String("addr", "127.0.0.1:5568", "http endpoint to listen")
 )
 
 func main() {
@@ -58,7 +59,7 @@ func main() {
 	var err error
 
 	// create context
-	ctxt, cancel := context.WithCancel(context.Background())
+	ctxt, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	// create chrome instance
@@ -70,34 +71,24 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer func() {
-		// shutdown chrome
-		err = c.Shutdown(ctxt)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		// wait for chrome to finish
-		err = c.Wait()
-		if err != nil {
-			log.Fatal(err)
-		}
-	}()
-	if err := c.Run(ctxt, chromedp.Navigate(*httpAddr)); err != nil {
+	if err := c.Run(ctxt, chromedp.Navigate("http://"+*httpAddr)); err != nil {
 		log.Fatalln("failed to navigate:", err)
 	}
-
-	timeOut := time.Second * 5
+	if err := c.Run(ctxt, chromedp.WaitVisible(`#title`, chromedp.ByID)); err != nil {
+		log.Fatalln("failed to wait:", err)
+	}
 	select {
 	case <-gotRequest:
 		log.Println("got request")
-	case <-time.After(timeOut):
-		log.Fatalln("timed out")
+	case <-ctxt.Done():
+		log.Fatalln("request waiting out")
 	}
 	select {
 	case <-gotPostRequest:
 		log.Println("got POST")
-	case <-time.After(timeOut):
+		os.Exit(0)
+	case <-ctxt.Done():
 		log.Fatalln("POST timed out")
 	}
+	log.Println("END")
 }

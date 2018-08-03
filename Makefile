@@ -31,3 +31,6 @@ check-api:
 	api -c api/sdp1.txt github.com/gortc/sdp
 test:
 	@./go.test.sh
+test-e2e:
+	@cd e2e && ./test.sh
+

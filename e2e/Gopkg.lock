@@ -123,8 +123,8 @@
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/chromedp/cdproto/cdp",
     "github.com/chromedp/chromedp",
+    "github.com/chromedp/chromedp/runner",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

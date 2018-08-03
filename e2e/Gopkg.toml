@@ -24,11 +24,9 @@
 #   go-tests = true
 #   unused-packages = true
 
-
-[[constraint]]
-  name = "github.com/mkenney/go-chrome"
-  version = "1.0.0-rc3"
+ignored = ["github.com/gortc/sdp"]
 
 [prune]
   go-tests = true
   unused-packages = true
+

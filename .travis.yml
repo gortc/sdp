@@ -1,5 +1,10 @@
 language: go
 
+sudo: required
+
+services:
+  - docker
+
 go:
   - 1.10.x
   - master
@@ -15,6 +20,7 @@ install:
 script:
   - make test
   - make check-api
+  - make test-e2e
   - make lint
 
 after_success:

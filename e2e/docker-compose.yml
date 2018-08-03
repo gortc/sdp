@@ -5,6 +5,6 @@ services:
     build:
       dockerfile: e2e/Dockerfile
       context: ../.
-    security_opt:
-      - seccomp:"chrome.json"
+    cap_add:
+      - SYS_ADMIN
     shm_size: 1024m

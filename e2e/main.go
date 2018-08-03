@@ -59,11 +59,11 @@ func main() {
 	var err error
 
 	// create context
-	ctxt, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	// create chrome instance
-	c, err := chromedp.New(ctxt, chromedp.WithLog(log.Printf), chromedp.WithRunnerOptions(
+	c, err := chromedp.New(ctx, chromedp.WithLog(log.Printf), chromedp.WithRunnerOptions(
 		runner.Path(*bin),
 		runner.DisableGPU,
 		runner.Flag("headless", *headless),
@@ -71,23 +71,23 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := c.Run(ctxt, chromedp.Navigate("http://"+*httpAddr)); err != nil {
+	if err := c.Run(ctx, chromedp.Navigate("http://"+*httpAddr)); err != nil {
 		log.Fatalln("failed to navigate:", err)
 	}
-	if err := c.Run(ctxt, chromedp.WaitVisible(`#title`, chromedp.ByID)); err != nil {
+	if err := c.Run(ctx, chromedp.WaitVisible(`#title`, chromedp.ByID)); err != nil {
 		log.Fatalln("failed to wait:", err)
 	}
 	select {
 	case <-gotRequest:
 		log.Println("got request")
-	case <-ctxt.Done():
+	case <-ctx.Done():
 		log.Fatalln("request waiting out")
 	}
 	select {
 	case <-gotPostRequest:
 		log.Println("got POST")
 		os.Exit(0)
-	case <-ctxt.Done():
+	case <-ctx.Done():
 		log.Fatalln("POST timed out")
 	}
 	log.Println("END")

@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/gortc/sdp/branch/master/graph/badge.svg)](https://codecov.io/gh/gortc/sdp)
 [![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#beta)
 
-# SDP go implementation
+# SDP
 Package sdp implements SDP: Session Description Protocol [[RFC 4566](https://tools.ietf.org/html/rfc4566)].
 Complies to [gortc principles](https://gortc.io/#principles) as core package.
 

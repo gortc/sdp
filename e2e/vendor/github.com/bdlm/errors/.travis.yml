@@ -1,0 +1,29 @@
+notifications:
+    slack:
+        secure: f1hta4qmYdckTimsVrJs/99gf2KKAraFOtocxFyS0C18+HtQUEbvwPbTiMLM/SvZpVILjWWyK1IVwtnuyQCsbjh4rXxxoV+1NGa+j15OCjluNz0ysluIftgr1wtaT08d0+peqinu/1ZKf7kMm7gp+64kq9EbhddHa6Hu1bL9/uUvcq0PpAVn3V+wt/AFDWWa9RUvs6SVd1lgbdNxQU2fZt6efpuXO7RXnxMSeF5T73iSQL1fZN0a+3rqu8JzZEq1PRfRw7dQGxAsIt+DBLtVa7P/3Zk/6kf9fEINR1O8vk76hXkkRLxVn1Za8RqYtHhgt3fn49aJwwFwRBa5wmDVJQ4PZKRlDFz2p5I2D9nMXklE+6vRYZU5aujh7Z/lM47jw+7tjER4cJxNQ2T9F9rAK2Zibr9qEi0pqx9A2E4jQuchQill3y17gMnyWn8vrkh4dpziDJ5iRkPki/JoWML0ptkYJIfp4AwoOSN69SRJ0o+Q1+rhoJgUSt1ylmtMIPA/4usmSWXwdhVXYc+AHvAfh869aD2VeqOUSCZjSar1XWWafirDhxDxVEqRKCRGm6BVf16QN5giGJuqAdHR0R4zYc8rJNtLzSFF6LEfErAi75GXjiCEDl+tU87a40Q0XLgaML8bed1yHv+Nv/DOoMvsyjcZ2uvwMEXZuTSheAd8fNE=
+
+git:
+    depth: 1
+    quiet: true
+    submodules: false
+
+branches:
+    only:
+        - master
+
+language: go
+go_import_path: github.com/bdlm/errors
+go:
+    - 1.5.x
+    - 1.6.x
+    - 1.7.x
+    - 1.8.x
+    - 1.9.x
+    - 1.10.x
+    - tip
+
+script:
+    - sh .travis.sh
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)

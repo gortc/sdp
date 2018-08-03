@@ -9,6 +9,8 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
+	"github.com/gortc/sdp"
+	"io/ioutil"
 )
 
 var (
@@ -25,6 +27,21 @@ func main() {
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
 		log.Println("http:", request.Method, request.URL.Path, request.RemoteAddr)
 		if request.Method == http.MethodPost {
+			log.Println("GOT POST")
+			buf, err := ioutil.ReadAll(request.Body)
+			if err != nil {
+				log.Fatalln("failed to read:", err)
+			}
+			s, err := sdp.DecodeSession(buf, nil)
+			if err != nil {
+				log.Fatalln("failed to decode session:", err)
+			}
+			decoder := sdp.NewDecoder(s)
+			message := new(sdp.Message)
+			if err := decoder.Decode(message); err != nil {
+				log.Fatalln("failed to decode message:", err)
+			}
+			log.Println("decoded address:", message.Origin.Address)
 			gotPostRequest <- struct{}{}
 			return
 		}
@@ -83,6 +100,4 @@ func main() {
 	case <-time.After(timeOut):
 		log.Fatalln("POST timed out")
 	}
-	time.Sleep(time.Second * 1)
-
 }

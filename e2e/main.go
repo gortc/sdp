@@ -11,6 +11,7 @@ import (
 
 	"github.com/chromedp/chromedp"
 	"github.com/chromedp/chromedp/runner"
+
 	"github.com/gortc/sdp"
 )
 
@@ -55,9 +56,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), *timeout)
 	defer cancel()
 	c, err := chromedp.New(ctx, chromedp.WithLog(log.Printf), chromedp.WithRunnerOptions(
-		runner.Path(*bin),
-		runner.DisableGPU,
-		runner.Flag("headless", *headless),
+		runner.Path(*bin), runner.DisableGPU, runner.Flag("headless", *headless),
 	))
 	if err != nil {
 		log.Fatalln("failed to create chrome", err)

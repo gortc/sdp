@@ -185,9 +185,8 @@ func (s Session) Equal(b Session) bool {
 	if len(s) != len(b) {
 		return false
 	}
-	for i, line := range s {
-		lineB := b[i]
-		if !line.Equal(lineB) {
+	for i := range s {
+		if !s[i].Equal(b[i]) {
 			return false
 		}
 	}

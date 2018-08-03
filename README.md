@@ -2,6 +2,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/gcxr3fq9ebadmu9b?svg=true)](https://ci.appveyor.com/project/ernado/sdp)
 [![GoDoc](https://godoc.org/github.com/gortc/sdp?status.svg)](https://godoc.org/github.com/gortc/sdp)
 [![codecov](https://codecov.io/gh/gortc/sdp/branch/master/graph/badge.svg)](https://codecov.io/gh/gortc/sdp)
+[![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#beta)
 
 # SDP go implementation
 Package sdp implements SDP: Session Description Protocol [[RFC 4566](https://tools.ietf.org/html/rfc4566)].

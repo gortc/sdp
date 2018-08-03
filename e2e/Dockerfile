@@ -7,5 +7,4 @@ RUN go build .
 FROM yukinying/chrome-headless-browser
 COPY --from=0 /go/src/github.com/gortc/sdp/e2e/e2e .
 COPY e2e/static static
-CMD ["./e2e", "/usr/bin/google-chrome-unstable"]
-ENTRYPOINT ["./e2e"]
+ENTRYPOINT ["./e2e", "-b=/usr/bin/google-chrome-unstable", "-timeout=3s"]

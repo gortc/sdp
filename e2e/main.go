@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -24,6 +25,7 @@ var (
 
 func main() {
 	flag.Parse()
+	fmt.Println("bin", *bin, "addr", *httpAddr, "timeout", *timeout)
 	gotPostRequest := make(chan struct{}, 1)
 	fs := http.FileServer(http.Dir("static"))
 	http.HandleFunc("/sdp", func(writer http.ResponseWriter, request *http.Request) {

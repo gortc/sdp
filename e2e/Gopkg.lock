@@ -2,12 +2,73 @@
 
 
 [[projects]]
-  digest = "1:f1061f68d5c3bccb194d950cd2ffd2c0b1f848a39dac423c6984422723809348"
-  name = "github.com/bdlm/errors"
+  branch = "master"
+  digest = "1:fe2d0a514c084b6c37d60a1b89707a51562f797c19b495027531aecb45971549"
+  name = "github.com/chromedp/cdproto"
+  packages = [
+    ".",
+    "accessibility",
+    "animation",
+    "applicationcache",
+    "audits",
+    "browser",
+    "cachestorage",
+    "cdp",
+    "css",
+    "database",
+    "debugger",
+    "deviceorientation",
+    "dom",
+    "domdebugger",
+    "domsnapshot",
+    "domstorage",
+    "emulation",
+    "headlessexperimental",
+    "heapprofiler",
+    "indexeddb",
+    "input",
+    "inspector",
+    "io",
+    "layertree",
+    "log",
+    "memory",
+    "network",
+    "overlay",
+    "page",
+    "performance",
+    "profiler",
+    "runtime",
+    "security",
+    "serviceworker",
+    "storage",
+    "systeminfo",
+    "target",
+    "tethering",
+    "tracing",
+  ]
+  pruneopts = "UT"
+  revision = "b8925c84f3c48b5871161947c2480fc40972248e"
+
+[[projects]]
+  digest = "1:13e2ffaa15cf117544a44b046c0438063047ee1b963ef9312ce7758c27cdaebc"
+  name = "github.com/chromedp/chromedp"
+  packages = [
+    ".",
+    "client",
+    "kb",
+    "runner",
+  ]
+  pruneopts = "UT"
+  revision = "34591780d9d429c470ccf81a2760c40245fc823a"
+  version = "v0.1.2"
+
+[[projects]]
+  digest = "1:256dd949e34358cbf396484da03e028e3c004a7a031d59892aef0a101fa0a01c"
+  name = "github.com/disintegration/imaging"
   packages = ["."]
   pruneopts = "UT"
-  revision = "4261cfedec68315454b163ae305cd34ecfc8b059"
-  version = "v0.1.0"
+  revision = "bbcee2f5c9d5e94ca42c8b50ec847fec64a6c134"
+  version = "v1.4.2"
 
 [[projects]]
   digest = "1:43dd08a10854b2056e615d1b1d22ac94559d822e1f8b6fcc92c1a1057e85188e"
@@ -18,84 +79,52 @@
   version = "v1.2.0"
 
 [[projects]]
-  digest = "1:299ea00a02ce7d7f7d584a584857075e2bbca1d1e70d53d414e115387f4e1b61"
-  name = "github.com/mkenney/go-chrome"
-  packages = [
-    "tot",
-    "tot/accessibility",
-    "tot/animation",
-    "tot/application/cache",
-    "tot/audits",
-    "tot/browser",
-    "tot/cache/storage",
-    "tot/console",
-    "tot/css",
-    "tot/database",
-    "tot/debugger",
-    "tot/device/orientation",
-    "tot/dom",
-    "tot/dom/debugger",
-    "tot/dom/snapshot",
-    "tot/dom/storage",
-    "tot/emulation",
-    "tot/headless/experimental",
-    "tot/heap/profiler",
-    "tot/indexed/db",
-    "tot/input",
-    "tot/io",
-    "tot/layer/tree",
-    "tot/log",
-    "tot/memory",
-    "tot/network",
-    "tot/overlay",
-    "tot/page",
-    "tot/performance",
-    "tot/profiler",
-    "tot/runtime",
-    "tot/schema",
-    "tot/security",
-    "tot/service/worker",
-    "tot/socket",
-    "tot/storage",
-    "tot/system/info",
-    "tot/target",
-    "tot/tethering",
-    "tot/tracing",
-  ]
-  pruneopts = "UT"
-  revision = "2c7643b4ebbd671f93ca9cfc76f4333c500b2808"
-  version = "v1.0.0-rc3"
-
-[[projects]]
-  digest = "1:d867dfa6751c8d7a435821ad3b736310c2ed68945d05b50fb9d23aee0540c8cc"
-  name = "github.com/sirupsen/logrus"
+  branch = "master"
+  digest = "1:901625a0300fa83074dcf2510424c26a19dc3edadf67b34ca45a78f879ac4b0c"
+  name = "github.com/knq/snaker"
   packages = ["."]
   pruneopts = "UT"
-  revision = "3e01752db0189b9157070a0e1668a620f9a85da2"
-  version = "v1.0.6"
+  revision = "d9ad1e7f342a5b58202aa92c5f1106d7bb8b9c73"
 
 [[projects]]
   branch = "master"
-  digest = "1:3f3a05ae0b95893d90b9b3b5afdb79a9b3d96e4e36e099d841ae602e4aca0da8"
-  name = "golang.org/x/crypto"
-  packages = ["ssh/terminal"]
+  digest = "1:4bc4b80749499a818176b07698dc72025610f5570168a47a94ffd38709e4a5f0"
+  name = "github.com/knq/sysutil"
+  packages = ["."]
   pruneopts = "UT"
-  revision = "56440b844dfe139a8ac053f4ecac0b20b79058f4"
+  revision = "0218e141a794643e8c0fa283b9cd076fc0df662d"
 
 [[projects]]
   branch = "master"
-  digest = "1:bdd70b95d2f0faaad6d9e259aad84738c6bdeb8f45245be6487e88df45f5a0f1"
-  name = "golang.org/x/sys"
+  digest = "1:aa3d8d42865c42626b5c1add193692d045b3188b1479f0a0a88690d21fe20083"
+  name = "github.com/mailru/easyjson"
   packages = [
-    "unix",
-    "windows",
+    ".",
+    "buffer",
+    "jlexer",
+    "jwriter",
   ]
   pruneopts = "UT"
-  revision = "0ffbfd41fbef8ffcf9b62b0b0aa3a5873ed7a4fe"
+  revision = "03f2033d19d5860aef995fe360ac7d395cd8ce65"
+
+[[projects]]
+  branch = "master"
+  digest = "1:d3d337e91c35f337d548873978c858ecb723168a6303a41a3ba625c79094f899"
+  name = "golang.org/x/image"
+  packages = [
+    "bmp",
+    "tiff",
+    "tiff/lzw",
+  ]
+  pruneopts = "UT"
+  revision = "c73c2afc3b812cdd6385de5a50616511c4a3d458"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  input-imports = ["github.com/mkenney/go-chrome/tot"]
+  input-imports = [
+    "github.com/chromedp/cdproto/cdp",
+    "github.com/chromedp/chromedp",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

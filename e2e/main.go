@@ -1,13 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/mkenney/go-chrome/tot"
-	"github.com/mkenney/go-chrome/tot/runtime"
+	"github.com/chromedp/chromedp"
+	"github.com/chromedp/chromedp/runner"
 )
 
 var (
@@ -37,37 +38,38 @@ func main() {
 			log.Fatalln("failed to listen:", err)
 		}
 	}()
-	f := chrome.Flags{}
-	if *headless {
-		f.Set("headless", "true")
-	}
-	f.Set("disable-gpu", "true")
-	f.Set("disable-dev-shm-usage", "true")
-	c := chrome.New(f, *bin, "", "", "")
-	if err := c.Launch(); err != nil {
-		panic(err)
+	var err error
+
+	// create context
+	ctxt, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// create chrome instance
+	c, err := chromedp.New(ctxt, chromedp.WithLog(log.Printf), chromedp.WithRunnerOptions(
+		runner.Path(*bin),
+		runner.DisableGPU,
+		runner.Flag("headless", *headless),
+	))
+	if err != nil {
+		log.Fatal(err)
 	}
 	defer func() {
-		if err := c.Close(); err != nil {
-			panic(err)
+		// shutdown chrome
+		err = c.Shutdown(ctxt)
+		if err != nil {
+			log.Fatal(err)
 		}
-		log.Println("browser closed")
+
+		// wait for chrome to finish
+		err = c.Wait()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}()
-	log.Println("navigating to", *httpAddr)
-	t, err := c.NewTab(*httpAddr)
-	if err != nil {
-		log.Fatalln("failed to open tab:", err)
+	if err := c.Run(ctxt, chromedp.Navigate(*httpAddr)); err != nil {
+		log.Fatalln("failed to navigate:", err)
 	}
-	r := t.Runtime()
-	select {
-	case <-r.Enable():
-		log.Println("runtime enabled")
-	case <-time.After(time.Second):
-		log.Fatalln("runtime timed out")
-	}
-	r.OnConsoleAPICalled(func(event *runtime.ConsoleAPICalledEvent) {
-		log.Println(event.Type, "in console")
-	})
+
 	timeOut := time.Second * 5
 	select {
 	case <-gotRequest:
@@ -82,4 +84,5 @@ func main() {
 		log.Fatalln("POST timed out")
 	}
 	time.Sleep(time.Second * 1)
+
 }

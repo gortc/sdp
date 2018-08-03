@@ -11,13 +11,13 @@ lint:
 		--deadline=300s \
         --dupl-threshold=70 \
 		-j $(PROCS)
+	@gocritic check-project .
 	@echo "ok"
 install:
-	go get -u sourcegraph.com/sqs/goreturns
+    go get gortc.io/api
+    go get -u github.com/go-critic/go-critic/...
 	go get -u github.com/alecthomas/gometalinter
 	gometalinter --install --update
-	go get -u github.com/cydev/go-fuzz/go-fuzz-build
-	go get -u github.com/dvyukov/go-fuzz/go-fuzz
 format:
 	goimports -w .
 profile:

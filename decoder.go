@@ -909,7 +909,7 @@ func (d *Decoder) decodeTimeZoneAdjustments(m *Message) error {
 	return nil
 }
 
-func (d *Decoder) decodeMediaDescription(m *Message) error {
+func (d *Decoder) decodeMediaDescription(_ *Message) error {
 	// m=0<media> 1<port> 2<proto> 3<fmt> ...
 	var (
 		desc MediaDescription

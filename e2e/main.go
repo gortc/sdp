@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -20,11 +19,18 @@ var (
 func main() {
 	flag.Parse()
 	gotRequest := make(chan struct{}, 1)
+	gotPostRequest := make(chan struct{}, 1)
+	fs := http.FileServer(http.Dir("static"))
 	http.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
-		log.Println("http:", request.Method, request.RemoteAddr)
-		writer.WriteHeader(http.StatusOK)
-		fmt.Fprintln(writer, `<h1>Hello world</h1>`)
-		gotRequest <- struct{}{}
+		log.Println("http:", request.Method, request.URL.Path, request.RemoteAddr)
+		if request.Method == http.MethodPost {
+			gotPostRequest <- struct{}{}
+			return
+		}
+		fs.ServeHTTP(writer, request)
+		if request.URL.Path == "/" {
+			gotRequest <- struct{}{}
+		}
 	})
 	go func() {
 		if err := http.ListenAndServe(*httpAddr, nil); err != nil {
@@ -62,10 +68,18 @@ func main() {
 	r.OnConsoleAPICalled(func(event *runtime.ConsoleAPICalledEvent) {
 		log.Println(event.Type, "in console")
 	})
+	timeOut := time.Second * 5
 	select {
 	case <-gotRequest:
 		log.Println("got request")
-	case <-time.After(time.Second * 5):
+	case <-time.After(timeOut):
 		log.Fatalln("timed out")
 	}
+	select {
+	case <-gotPostRequest:
+		log.Println("got POST")
+	case <-time.After(timeOut):
+		log.Fatalln("POST timed out")
+	}
+	time.Sleep(time.Second * 1)
 }

@@ -1,7 +1,6 @@
 FROM golang:1.10.3
 ADD . /go/src/github.com/gortc/sdp
 WORKDIR /go/src/github.com/gortc/sdp/e2e/
-COPY e2e/main.go .
 RUN go build .
 
 FROM yukinying/chrome-headless-browser

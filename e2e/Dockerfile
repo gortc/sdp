@@ -1,4 +1,5 @@
-FROM golang:1.10.3
+ARG CI_GO_VERSION
+FROM golang:${CI_GO_VERSION}
 ADD . /go/src/github.com/gortc/sdp
 WORKDIR /go/src/github.com/gortc/sdp/e2e/
 RUN go build .

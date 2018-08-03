@@ -5,6 +5,8 @@ services:
     build:
       dockerfile: e2e/Dockerfile
       context: ../.
+      args:
+        CI_GO_VERSION: ${CI_GO_VERSION}
     cap_add:
       - SYS_ADMIN
     shm_size: 1024m

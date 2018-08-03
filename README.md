@@ -198,7 +198,7 @@ func main() {
 		}).
 		AddAttribute("rtpmap", "99", "h263-1998/90000").
 		AddLine(sdp.TypeEmail, "test@test.com").
-		AddRaw('ф', "ОПАСНО").
+		AddRaw('ü', "vαlue").
 		AppendTo(b)
 	// and so on
 	fmt.Println(string(b))
@@ -207,7 +207,7 @@ func main() {
 	//	m=video 51372 RTP/AVP 99
 	//	a=rtpmap:99 h263-1998/90000
 	//	e=test@test.com
-	//  ф=ОПАСНО
+	//	ü=vαlue
 }
 ```
 

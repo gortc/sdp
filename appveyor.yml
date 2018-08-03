@@ -20,9 +20,6 @@ install:
   - gcc --version
   - g++ --version
 
-build_script:
-  - go install -v ./...
-
 test_script:
   - set PATH=C:\gopath\bin;%PATH%
   - go test -v ./...

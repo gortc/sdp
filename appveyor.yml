@@ -25,7 +25,7 @@ build_script:
 
 test_script:
   - set PATH=C:\gopath\bin;%PATH%
-  - go test -v ./...
+  - go test -v
 
 #artifacts:
 #  - path: '%GOPATH%\bin\*.exe'

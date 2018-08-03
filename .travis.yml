@@ -9,13 +9,11 @@ matrix:
   - go: master
   fast_finish: true
 
-before_install:
+install:
   - make install
 
-install: true
-
 script:
-  - ./go.test.sh
+  - make test
   - make check-api
   - make lint
 

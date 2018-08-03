@@ -14,8 +14,8 @@ lint:
 	@gocritic check-project .
 	@echo "ok"
 install:
-    go get gortc.io/api
-    go get -u github.com/go-critic/go-critic/...
+	go get gortc.io/api
+	go get -u github.com/go-critic/go-critic/...
 	go get -u github.com/alecthomas/gometalinter
 	gometalinter --install --update
 format:
@@ -26,3 +26,5 @@ profile-cpu:
 	go tool pprof sdp.test cpu.out
 check-api:
 	api -c api/sdp1.txt github.com/gortc/sdp
+test:
+	@./go.test.sh

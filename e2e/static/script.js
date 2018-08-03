@@ -10,7 +10,7 @@ pc.createDataChannel('webrtchacks');
 
 pc.createOffer(
     function (offer) {
-        fetch("/",
+        fetch("/sdp",
             {
                 method: "POST",
                 body: offer.sdp

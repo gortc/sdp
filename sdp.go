@@ -103,42 +103,31 @@ func (t Type) appendTo(b []byte) []byte {
 	return appendRune(b, rune(t))
 }
 
+var typeToStr = map[Type]string{
+	TypeAttribute:          "attribute",
+	TypePhone:              "phone",
+	TypeEmail:              "email",
+	TypeConnectionData:     "connection data",
+	TypeURI:                "uri",
+	TypeSessionName:        "session name",
+	TypeOrigin:             "origin",
+	TypeProtocolVersion:    "version",
+	TypeTiming:             "timing",
+	TypeBandwidth:          "bandwidth",
+	TypeSessionInformation: "session info",
+	TypeRepeatTimes:        "repeat times",
+	TypeTimeZones:          "time zones",
+	TypeEncryptionKey:      "encryption keys",
+	TypeMediaDescription:   "media description",
+}
+
 func (t Type) String() string {
-	switch t {
-	case TypeAttribute:
-		return "attribute"
-	case TypePhone:
-		return "phone"
-	case TypeEmail:
-		return "email"
-	case TypeConnectionData:
-		return "connection data"
-	case TypeURI:
-		return "uri"
-	case TypeSessionName:
-		return "session name"
-	case TypeOrigin:
-		return "origin"
-	case TypeProtocolVersion:
-		return "version"
-	case TypeTiming:
-		return "timing"
-	case TypeBandwidth:
-		return "bandwidth"
-	case TypeSessionInformation:
-		return "session info"
-	case TypeRepeatTimes:
-		return "repeat times"
-	case TypeTimeZones:
-		return "time zones"
-	case TypeEncryptionKey:
-		return "encryption keys"
-	case TypeMediaDescription:
-		return "media description"
-	default:
-		// falling back to raw value.
-		return string(rune(t))
+	s, ok := typeToStr[t]
+	if ok {
+		return s
 	}
+	// Falling back to raw value.
+	return string(rune(t))
 }
 
 // Attribute types as described in RFC 4566.

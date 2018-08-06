@@ -14,8 +14,9 @@ func (s Session) appendAttributes(attrs Attributes) Session {
 }
 
 // Append encodes message to Session and returns result.
+//
+// See RFC 4566 Section 5.
 func (m *Message) Append(s Session) Session {
-	// see https://tools.ietf.org/html/rfc4566#section-5
 	s = s.AddVersion(m.Version)
 	s = s.AddOrigin(m.Origin)
 	s = s.AddSessionName(m.Name)

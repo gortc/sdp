@@ -254,12 +254,6 @@ var orderingMedia = ordering{
 // isExpected determines if t is expected on pos in s section and returns nil,
 // if it is expected and DecodeError if not.
 func isExpected(t Type, s section, pos int) error {
-	//logger := log.WithField("t", t).WithFields(log.Fields{
-	//	"s": s,
-	//	"p": pos,
-	//})
-	//logger.Printf("isExpected(%s, %s, %d)", t, s, pos)
-
 	o := getOrdering(s)
 	if len(o) > pos {
 		for _, expected := range o[pos:] {
@@ -273,25 +267,21 @@ func isExpected(t Type, s section, pos int) error {
 		}
 	}
 
-	// checking possible section transitions
+	// Checking possible section transitions.
 	switch s {
 	case sectionSession:
 		if pos < orderingAfterTime && isExpected(t, sectionTime, 0) == nil {
-			//logger.Printf("s->t")
 			return nil
 		}
 		if isExpected(t, sectionMedia, 0) == nil {
-			//logger.Printf("s->m")
 			return nil
 		}
 	case sectionTime:
 		if isExpected(t, sectionSession, orderingAfterTime) == nil {
-			//logger.Printf("t->s")
 			return nil
 		}
 	case sectionMedia:
 		if pos != 0 && isExpected(t, sectionMedia, 0) == nil {
-			//logger.Printf("m->m")
 			return nil
 		}
 	}
@@ -370,7 +360,6 @@ func (d *Decoder) decodeKV() (string, string, error) {
 }
 
 func (d *Decoder) decodeTiming(m *Message) error {
-	//log.Println("decoding timing")
 	d.sPos = 0
 	d.section = sectionTime
 	for d.next() {
@@ -395,7 +384,6 @@ func (d *Decoder) decodeTiming(m *Message) error {
 }
 
 func (d *Decoder) decodeMedia(m *Message) error {
-	//log.Println("decoding media")
 	d.sPos = 0
 	d.section = sectionMedia
 	d.m = Media{}
@@ -571,7 +559,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		m.Connection.AddressType = string(addressType)
 		m.Connection.NetworkType = string(netType)
 	}
-	// decoding address
+	// Decoding address.
 	// <base multicast address>[/<ttl>]/<number of addresses>
 	var (
 		base   []byte

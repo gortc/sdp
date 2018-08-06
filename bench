@@ -1,2 +1,0 @@
-#!/bin/bash
-go test -bench $1 -o sdp.test -memprofile=mem.out -cpuprofile cpu.out

@@ -39,3 +39,6 @@ examples/sdp-encode-low/sdp-encode-low
 corpus
 crashers
 suppressions
+
+# Test result
+coverage.txt

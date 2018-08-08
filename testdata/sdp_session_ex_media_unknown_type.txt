@@ -1,4 +1,6 @@
 v=0
+o=- 4466110607526902804 2 IN IP4 127.0.0.1
+s=-
 e=test@test.com
 m=video 51372 RTP/AVP 99
 a=rtpmap:99 h263-1998/90000

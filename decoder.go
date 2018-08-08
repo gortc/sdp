@@ -251,6 +251,25 @@ var orderingMedia = ordering{
 	TypeAttribute,
 }
 
+var errUnknownType = errors.New("unknown type")
+
+// isKnown returns true if t is defined in RFC 4566.
+func isKnown(t Type) bool {
+	switch t {
+	case TypeProtocolVersion,
+		TypeOrigin, TypeSessionName,
+		TypeSessionInformation, TypeURI,
+		TypeEmail, TypePhone,
+		TypeConnectionData, TypeBandwidth,
+		TypeTiming, TypeRepeatTimes,
+		TypeTimeZones, TypeEncryptionKey,
+		TypeAttribute, TypeMediaDescription:
+		return true
+	default:
+		return false
+	}
+}
+
 // isExpected determines if t is expected on pos in s section and returns nil,
 // if it is expected and DecodeError if not.
 func isExpected(t Type, s section, pos int) error {
@@ -285,8 +304,12 @@ func isExpected(t Type, s section, pos int) error {
 			return nil
 		}
 	}
-	msg := fmt.Sprintf("no matches in ordering array at %s[%d]",
-		s, pos,
+	if !isKnown(t) {
+		return errUnknownType
+	}
+	// Attribute is known, but out of order.
+	msg := fmt.Sprintf("no matches in ordering array at %s[%d] for %s",
+		s, pos, t,
 	)
 	err := newSectionDecodeError(s, msg)
 	return errors.Wrapf(err, "field %s is unexpected", t)
@@ -364,6 +387,9 @@ func (d *Decoder) decodeTiming(m *Message) error {
 	d.section = sectionTime
 	for d.next() {
 		if err := isExpected(d.t, d.section, d.sPos); err != nil {
+			if canSkip(err) {
+				continue
+			}
 			return errors.Wrap(err, "decode failed")
 		}
 		if !isZeroOrMore(d.t) {
@@ -389,6 +415,9 @@ func (d *Decoder) decodeMedia(m *Message) error {
 	d.m = Media{}
 	for d.next() {
 		if err := isExpected(d.t, d.section, d.sPos); err != nil {
+			if canSkip(err) {
+				continue
+			}
 			return errors.Wrap(err, "decode failed")
 		}
 		if d.t == TypeMediaDescription && d.sPos != 0 {
@@ -970,11 +999,18 @@ func (d *Decoder) decodeField(m *Message) error {
 	}
 }
 
+func canSkip(err error) bool {
+	return errors.Cause(err) == errUnknownType
+}
+
 func (d *Decoder) decodeSession(m *Message) error {
 	d.sPos = 0
 	d.section = sectionSession
 	for d.next() {
 		if err := isExpected(d.t, d.section, d.sPos); err != nil {
+			if canSkip(err) {
+				continue
+			}
 			return errors.Wrap(err, "decode failed")
 		}
 		if !isZeroOrMore(d.t) {

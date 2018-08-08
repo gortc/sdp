@@ -387,6 +387,9 @@ func (d *Decoder) decodeTiming(m *Message) error {
 	d.section = sectionTime
 	for d.next() {
 		if err := isExpected(d.t, d.section, d.sPos); err != nil {
+			if canSkip(err) {
+				continue
+			}
 			return errors.Wrap(err, "decode failed")
 		}
 		if !isZeroOrMore(d.t) {
@@ -412,6 +415,9 @@ func (d *Decoder) decodeMedia(m *Message) error {
 	d.m = Media{}
 	for d.next() {
 		if err := isExpected(d.t, d.section, d.sPos); err != nil {
+			if canSkip(err) {
+				continue
+			}
 			return errors.Wrap(err, "decode failed")
 		}
 		if d.t == TypeMediaDescription && d.sPos != 0 {
@@ -993,11 +999,18 @@ func (d *Decoder) decodeField(m *Message) error {
 	}
 }
 
+func canSkip(err error) bool {
+	return errors.Cause(err) == errUnknownType
+}
+
 func (d *Decoder) decodeSession(m *Message) error {
 	d.sPos = 0
 	d.section = sectionSession
 	for d.next() {
 		if err := isExpected(d.t, d.section, d.sPos); err != nil {
+			if canSkip(err) {
+				continue
+			}
 			return errors.Wrap(err, "decode failed")
 		}
 		if !isZeroOrMore(d.t) {

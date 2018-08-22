@@ -13,7 +13,7 @@ func TestMessage_Append(t *testing.T) {
 		Description: MediaDescription{
 			Type:     "audio",
 			Port:     49170,
-			Format:   "0",
+			Formats:  []string{"0"},
 			Protocol: "RTP/AVP",
 		},
 		Connection: ConnectionData{
@@ -28,7 +28,7 @@ func TestMessage_Append(t *testing.T) {
 		Description: MediaDescription{
 			Type:     "video",
 			Port:     51372,
-			Format:   "99",
+			Formats:  []string{"99"},
 			Protocol: "RTP/AVP",
 		},
 		Bandwidths: Bandwidths{
@@ -131,7 +131,7 @@ func BenchmarkEncode(b *testing.B) {
 		Description: MediaDescription{
 			Type:     "audio",
 			Port:     49170,
-			Format:   "0",
+			Formats:  []string{"0"},
 			Protocol: "RTP/AVP",
 		},
 	}
@@ -139,7 +139,7 @@ func BenchmarkEncode(b *testing.B) {
 		Description: MediaDescription{
 			Type:     "video",
 			Port:     51372,
-			Format:   "99",
+			Formats:  []string{"99"},
 			Protocol: "RTP/AVP",
 		},
 		Bandwidths: Bandwidths{

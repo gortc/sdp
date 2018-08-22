@@ -466,7 +466,32 @@ type MediaDescription struct {
 	Port        int
 	PortsNumber int
 	Protocol    string
-	Format      string
+	Formats     []string
+}
+
+// Equal returns true if b equals to m.
+func (m MediaDescription) Equal(b MediaDescription) bool {
+	if m.Type != b.Type {
+		return false
+	}
+	if m.Port != b.Port {
+		return false
+	}
+	if m.PortsNumber != b.PortsNumber {
+		return false
+	}
+	if m.Protocol != b.Protocol {
+		return false
+	}
+	if len(m.Formats) != len(b.Formats) {
+		return false
+	}
+	for i := range m.Formats {
+		if m.Formats[i] != b.Formats[i] {
+			return false
+		}
+	}
+	return true
 }
 
 // AddMediaDescription appends Media Description field to Session.
@@ -480,7 +505,12 @@ func (s Session) AddMediaDescription(m MediaDescription) Session {
 	}
 	v = appendSpace(v)
 	v = appendSpace(append(v, m.Protocol...))
-	v = append(v, m.Format...)
+	for i := range m.Formats {
+		v = append(v, m.Formats[i]...)
+		if i != len(m.Formats)-1 {
+			v = appendRune(v, fieldsDelimiter)
+		}
+	}
 	return s.append(TypeMediaDescription, v)
 }
 

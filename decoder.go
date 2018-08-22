@@ -808,10 +808,10 @@ func (d *Decoder) decodeMediaDescription(_ *Message) error {
 		}
 	}
 	decodeString(p[2], &desc.Protocol)
-	if len(p) > 3 {
-		desc.Format = string(bytes.Join(p[3:], []byte{fieldsDelimiter}))
-		d.m.Description = desc
+	for _, rawFormat := range p[3:] {
+		desc.Formats = append(desc.Formats, string(rawFormat))
 	}
+	d.m.Description = desc
 	return nil
 }
 

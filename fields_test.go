@@ -141,12 +141,12 @@ func TestSession_AddMediaDescription(t *testing.T) {
 		Port:        49170,
 		PortsNumber: 2,
 		Protocol:    "RTP/AVP",
-		Format:      "31",
+		Formats:     []string{"31", "32"},
 	}).AddMediaDescription(MediaDescription{
 		Type:     "audio",
 		Port:     49170,
 		Protocol: "RTP/AVP",
-		Format:   "555",
+		Formats:  []string{"555"},
 	})
 	shouldDecodeExpS(t, s, "media")
 }
@@ -206,13 +206,13 @@ func TestSession_EX1(t *testing.T) {
 			Type:     "audio",
 			Port:     49170,
 			Protocol: "RTP/AVP",
-			Format:   "0",
+			Formats:  []string{"0"},
 		}).
 		AddMediaDescription(MediaDescription{
 			Type:     "video",
 			Port:     51372,
 			Protocol: "RTP/AVP",
-			Format:   "99",
+			Formats:  []string{"99"},
 		}).
 		AddAttribute("rtpmap", "99", "h263-1998/90000")
 	shouldDecode(t, s, "sdp_session_ex1")
@@ -290,13 +290,13 @@ func BenchmarkSession_EX1(b *testing.B) {
 			Type:     "audio",
 			Port:     49170,
 			Protocol: "RTP/AVP",
-			Format:   "0",
+			Formats:  []string{"0"},
 		})
 		s = s.AddMediaDescription(MediaDescription{
 			Type:     "video",
 			Port:     51372,
 			Protocol: "RTP/AVP",
-			Format:   "99",
+			Formats:  []string{"99"},
 		})
 		s = s.AddAttribute("rtpmap", "99", "h263-1998/90000")
 		s = s.reset()
@@ -559,6 +559,70 @@ func TestOrigin_Equal(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			if v := tc.a.Equal(tc.b); v != tc.value {
 				t.Error("unexpected equal result")
+			}
+		})
+	}
+}
+
+func TestMediaDescription_Equal(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		a, b  MediaDescription
+		equal bool
+	}{
+		{
+			name:  "Blank",
+			equal: true,
+		},
+		{
+			name: "Type",
+			a: MediaDescription{
+				Type: "foo",
+			},
+			equal: false,
+		},
+		{
+			name: "Protocol",
+			a: MediaDescription{
+				Protocol: "foo",
+			},
+			equal: false,
+		},
+		{
+			name: "Port",
+			a: MediaDescription{
+				Port: 100,
+			},
+			equal: false,
+		},
+		{
+			name: "PortsNumber",
+			a: MediaDescription{
+				PortsNumber: 100,
+			},
+			equal: false,
+		},
+		{
+			name: "FormatsLength",
+			a: MediaDescription{
+				Formats: []string{"1"},
+			},
+			equal: false,
+		},
+		{
+			name: "FormatsValue",
+			a: MediaDescription{
+				Formats: []string{"1"},
+			},
+			b: MediaDescription{
+				Formats: []string{"2"},
+			},
+			equal: false,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if tc.a.Equal(tc.b) != tc.equal {
+				t.Error("incorrect equality test")
 			}
 		})
 	}

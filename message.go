@@ -128,6 +128,19 @@ type Media struct {
 	Bandwidths  Bandwidths
 }
 
+// PayloadFormat returns payload format from a=rtpmap.
+// See RFC 4566 Section 6.
+func (m *Media) PayloadFormat(payloadType string) string {
+	for _, v := range m.Attributes.Values("rtpmap") {
+		if strings.HasPrefix(v, payloadType) {
+			return strings.TrimSpace(
+				strings.TrimPrefix(v, payloadType),
+			)
+		}
+	}
+	return ""
+}
+
 // AddAttribute appends new k-v pair to attribute list.
 func (m *Media) AddAttribute(k string, values ...string) {
 	v := strings.Join(values, " ")

@@ -15,7 +15,7 @@ func main() {
 		AddMediaDescription(sdp.MediaDescription{
 			Type:     "video",
 			Port:     51372,
-			Format:   "99",
+			Formats:  []string{"99"},
 			Protocol: "RTP/AVP",
 		}).
 		AddAttribute("rtpmap", "99", "h263-1998/90000").

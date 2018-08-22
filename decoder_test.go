@@ -140,9 +140,9 @@ func TestDecoder_Decode(t *testing.T) {
 					Type:     "audio",
 					Port:     49170,
 					Protocol: "RTP/AVP",
-					Format:   "0",
+					Formats:  []string{"0"},
 				}
-				if m.Medias[0].Description != mExp {
+				if !m.Medias[0].Description.Equal(mExp) {
 					t.Error("m", m.Medias[0].Description, "!=", mExp)
 				}
 				// video 51372 RTP/AVP 99
@@ -150,10 +150,16 @@ func TestDecoder_Decode(t *testing.T) {
 					Type:     "video",
 					Port:     51372,
 					Protocol: "RTP/AVP",
-					Format:   "99",
+					Formats:  []string{"99"},
 				}
-				if m.Medias[1].Description != mExp {
+				if !m.Medias[1].Description.Equal(mExp) {
 					t.Error("m", m.Medias[1].Description, "!=", mExp)
+				}
+				if m.Medias[1].PayloadFormat("99") != "h263-1998/90000" {
+					t.Error("incorrect payload  format")
+				}
+				if m.Medias[1].PayloadFormat("0") != "" {
+					t.Error("incorrect payload  format")
 				}
 			}
 		})

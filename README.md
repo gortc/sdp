@@ -60,7 +60,7 @@ func main()  {
 		Description: sdp.MediaDescription{
 			Type:     "audio",
 			Port:     49170,
-			Format:   "0",
+			Formats:   []string{"0"},
 			Protocol: "RTP/AVP",
 		},
 	}
@@ -68,7 +68,7 @@ func main()  {
 		Description: sdp.MediaDescription{
 			Type:     "video",
 			Port:     51372,
-			Format:   "99",
+			Formats:   []string{"99"},
 			Protocol: "RTP/AVP",
 		},
 		Bandwidths: sdp.Bandwidths{
@@ -196,7 +196,7 @@ func main() {
 		AddMediaDescription(sdp.MediaDescription{
 			Type:     "video",
 			Port:     51372,
-			Format:   "99",
+			Formats:   []string{"99"},
 			Protocol: "RTP/AVP",
 		}).
 		AddAttribute("rtpmap", "99", "h263-1998/90000").

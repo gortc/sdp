@@ -35,10 +35,7 @@ examples/sdp-decode/sdp-decode
 examples/sdp-encode/sdp-encode
 examples/sdp-encode-low/sdp-encode-low
 
-# Fuzzing results
-corpus
-crashers
-suppressions
-
 # Test result
 coverage.txt
+
+sdp-fuzz.zip

@@ -9,9 +9,9 @@ import "fmt"
 // 1. Get
 //    go get -u github.com/dvyukov/go-fuzz/...
 // 2. Build
-//    go-fuzz-build github.com/gortc/sdp-fuzz
+//    go-fuzz-build github.com/gortc/sdp
 // 3. Run
-//    go-fuzz --bin=sdp-fuzz.zip --workdir=sdp
+//    go-fuzz --bin=sdp-fuzz.zip --workdir=fuzz
 
 func Fuzz(data []byte) int {
 	s, err := DecodeSession(data, nil)

@@ -8,7 +8,7 @@
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgortc%2Fsdp.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgortc%2Fsdp?ref=badge_shield)
 
 # SDP
-Package sdp implements SDP: Session Description Protocol [[RFC 4566](https://tools.ietf.org/html/rfc4566)].
+Package sdp implements SDP: Session Description Protocol [[RFC4566](https://tools.ietf.org/html/rfc4566)].
 Complies to [gortc principles](https://gortc.io/#principles) as core package.
 
 ### Examples

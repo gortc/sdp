@@ -41,7 +41,6 @@ func (d *Decoder) newFieldError(msg string) DecodeError {
 }
 
 func (d *Decoder) next() bool {
-	//time.Sleep(time.Millisecond * 100)
 	if d.pos >= len(d.s) {
 		return false
 	}
@@ -132,7 +131,6 @@ func isExpected(t Type, s section, pos int) error {
 	if len(o) > pos {
 		for _, expected := range o[pos:] {
 			if expected == t {
-				//logger.Printf("%s is expected", expected)
 				return nil
 			}
 			if isOptional(expected) {
@@ -210,7 +208,7 @@ func newSectionDecodeError(s section, m string) DecodeError {
 	return newDecodeError(place, m)
 }
 
-func (d *Decoder) decodeKV() (string, string, error) {
+func (d *Decoder) decodeKV() (k, v string, err error) {
 	var (
 		key     []byte
 		value   []byte
@@ -303,7 +301,7 @@ func addAttribute(a Attributes, k, v string) Attributes {
 	if a == nil {
 		a = make(Attributes)
 	}
-	if len(v) == 0 {
+	if v == "" {
 		v = blank
 	}
 	a[k] = append(a[k], v)
@@ -539,7 +537,7 @@ func (d *Decoder) decodeBandwidth(m *Message) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to decode bandwidth")
 	}
-	if len(v) == 0 {
+	if v == "" {
 		msg := "no value specified"
 		err := newSectionDecodeError(d.section, msg)
 		return errors.Wrap(err, "failed to decode bandwidth")

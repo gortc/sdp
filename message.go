@@ -55,7 +55,7 @@ type Timing struct {
 }
 
 // Start returns start of session.
-func (m Message) Start() time.Time {
+func (m *Message) Start() time.Time {
 	if len(m.Timing) == 0 {
 		return time.Time{}
 	}
@@ -63,7 +63,7 @@ func (m Message) Start() time.Time {
 }
 
 // End returns end of session.
-func (m Message) End() time.Time {
+func (m *Message) End() time.Time {
 	if len(m.Timing) == 0 {
 		return time.Time{}
 	}
@@ -71,7 +71,7 @@ func (m Message) End() time.Time {
 }
 
 // Flag returns true if set.
-func (m Message) Flag(flag string) bool {
+func (m *Message) Flag(flag string) bool {
 	if len(m.Attributes) > 0 {
 		return m.Attributes.Flag(flag)
 	}
@@ -79,7 +79,7 @@ func (m Message) Flag(flag string) bool {
 }
 
 // Attribute returns string v.
-func (m Message) Attribute(attribute string) string {
+func (m *Message) Attribute(attribute string) string {
 	if len(m.Attributes) > 0 {
 		return m.Attributes.Value(attribute)
 	}

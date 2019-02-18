@@ -175,9 +175,6 @@ func TestDecoder_WebRTC1(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			//for _, l := range session {
-			//	fmt.Println(l)
-			//}
 			decoder := Decoder{
 				s: session,
 			}

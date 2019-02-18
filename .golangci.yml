@@ -28,11 +28,16 @@ linters-settings:
 
 issues:
   exclude:
-    - "`assertHMACSize` - `blocksize` always receives `64`"
+    - "isOptional is a pure function"
   exclude-rules:
     - text: "string `<nil>`"
       linters:
         - goconst
+
+    - text: "`\\(\\*Message\\)\\.Append`"
+      linters: gocyclo
+    - text: "`\\(\\*Decoder\\)"
+      linters: gocyclo
 
     # Exclude some linters from running on tests files.
     - path: _test\.go
@@ -49,16 +54,10 @@ issues:
       linters:
         - gocritic
 
-    # Exclude known linters from partially hard-vendored code,
-    # which is impossible to exclude via "nolint" comments.
-    - path: internal/hmac/
-      text: "weak cryptographic primitive"
+    - path: fields\.go
+      text: "hugeParam: .+ is heavy \\(80 bytes\\); consider passing it by pointer"
       linters:
-        - gosec
-    - path: internal/hmac/
-      text: "Write\\` is not checked"
-      linters:
-        - errcheck
+        - gocritic
 
     # Ease linting on benchmarking code.
     - path: cmd/stun-bench/

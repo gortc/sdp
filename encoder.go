@@ -3,7 +3,7 @@ package sdp
 func (s Session) appendAttributes(attrs Attributes) Session {
 	for k, v := range attrs {
 		for _, a := range v {
-			if len(a) == 0 {
+			if a == "" {
 				s = s.AddFlag(k)
 			} else {
 				s = s.AddAttribute(k, a)

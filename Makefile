@@ -1,26 +1,10 @@
 PROCS := $(shell nproc)
 lint:
-	@echo "linting on $(PROCS) cores"
-	@gometalinter -e "\.String\(\).+gocyclo" \
-		-e "_test.go.+(gocyclo|errcheck|dupl)" \
-		-e "isZeroOrMore is a pure function but its return value is ignored" \
-		-e "isOptional is a pure function but its return value is ignored" \
-		-e "parameter result 0 \(bool\) is never used" \
-		-e "parameter d always receives \"IN\"" \
-		--enable-all \
-		--enable="lll" --line-length=100 \
-		--disable=gocyclo \
-		--disable=gochecknoglobals \
-		--deadline=300s \
-		--dupl-threshold=70 \
-		-j $(PROCS)
-	@gocritic check-project .
+	@golangci-lint run
 	@echo "ok"
 install:
 	go get gortc.io/api
-	go get -u github.com/go-critic/go-critic/...
-	go get -u github.com/alecthomas/gometalinter
-	gometalinter --install --update
+	go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
 format:
 	goimports -w .
 profile:
@@ -33,4 +17,3 @@ test:
 	@./go.test.sh
 test-e2e:
 	@cd e2e && ./test.sh
-

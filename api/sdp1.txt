@@ -46,6 +46,11 @@ pkg github.com/gortc/sdp, method (*Media) PayloadFormat(string) string
 pkg github.com/gortc/sdp, method (*Message) AddAttribute(string, string)
 pkg github.com/gortc/sdp, method (*Message) AddFlag(string)
 pkg github.com/gortc/sdp, method (*Message) Append(Session) Session
+pkg github.com/gortc/sdp, method (*Message) Attribute(string) string
+pkg github.com/gortc/sdp, method (*Message) End() time.Time
+pkg github.com/gortc/sdp, method (*Message) Flag(string) bool
+pkg github.com/gortc/sdp, method (*Message) Start() time.Time
+pkg github.com/gortc/sdp, method (*Origin) Equal(Origin) bool
 pkg github.com/gortc/sdp, method (Attributes) Flag(string) bool
 pkg github.com/gortc/sdp, method (Attributes) Value(string) string
 pkg github.com/gortc/sdp, method (Attributes) Values(string) []string
@@ -60,11 +65,6 @@ pkg github.com/gortc/sdp, method (Line) AppendTo([]uint8) []uint8
 pkg github.com/gortc/sdp, method (Line) Equal(Line) bool
 pkg github.com/gortc/sdp, method (Line) String() string
 pkg github.com/gortc/sdp, method (MediaDescription) Equal(MediaDescription) bool
-pkg github.com/gortc/sdp, method (Message) Attribute(string) string
-pkg github.com/gortc/sdp, method (Message) End() time.Time
-pkg github.com/gortc/sdp, method (Message) Flag(string) bool
-pkg github.com/gortc/sdp, method (Message) Start() time.Time
-pkg github.com/gortc/sdp, method (Origin) Equal(Origin) bool
 pkg github.com/gortc/sdp, method (Session) AddAttribute(string, ...string) Session
 pkg github.com/gortc/sdp, method (Session) AddBandwidth(BandwidthType, int) Session
 pkg github.com/gortc/sdp, method (Session) AddConnectionData(ConnectionData) Session

@@ -77,9 +77,7 @@ func (l *Line) Decode(b []byte) error {
 }
 
 func (l Line) String() string {
-	return fmt.Sprintf("%s: %s",
-		l.Type, string(l.Value),
-	)
+	return fmt.Sprintf("%s: %s", l.Type, string(l.Value))
 }
 
 func appendRune(b []byte, r rune) []byte {
@@ -216,9 +214,7 @@ type sliceScanner struct {
 }
 
 func newScanner(v []byte) sliceScanner {
-	return sliceScanner{
-		v: v,
-	}
+	return sliceScanner{v: v}
 }
 
 func (s sliceScanner) Line() []byte {

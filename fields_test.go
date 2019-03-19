@@ -10,7 +10,7 @@ import (
 
 func shouldDecode(tb testing.TB, s Session, name string) {
 	buf := make([]byte, 0, 1024)
-	tData := loadData(tb, name, testNL)
+	tData := loadData(tb, name, testCRNL)
 	buf = s.AppendTo(buf)
 	if !bytes.Equal(tData, buf) {
 		fmt.Println(tData)

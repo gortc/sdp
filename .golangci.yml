@@ -29,6 +29,7 @@ linters-settings:
 issues:
   exclude:
     - "isOptional is a pure function"
+    - "use strings.ReplaceAll"
   exclude-rules:
     - text: "string `<nil>`"
       linters:

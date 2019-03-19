@@ -80,6 +80,15 @@ func (l Line) String() string {
 	return fmt.Sprintf("%s: %s", l.Type, string(l.Value))
 }
 
+func appendCLRF(b []byte) []byte {
+	buf := make([]byte, 4)
+	n := utf8.EncodeRune(buf, '\r')
+	b = append(b, buf[:n]...)
+	n = utf8.EncodeRune(buf, '\n')
+	b = append(b, buf[:n]...)
+	return b
+}
+
 func appendRune(b []byte, r rune) []byte {
 	buf := make([]byte, 4)
 	n := utf8.EncodeRune(buf, r)
@@ -156,13 +165,9 @@ func (s Session) reset() Session {
 
 // AppendTo appends all session lines to b and returns b.
 func (s Session) AppendTo(b []byte) []byte {
-	last := len(s) - 1
-	for i, l := range s {
+	for _, l := range s {
 		b = l.AppendTo(b)
-		if i < last {
-			// not adding newline on end
-			b = appendRune(b, newLine)
-		}
+		b = appendCLRF(b)
 	}
 	return b
 }

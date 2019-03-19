@@ -37,15 +37,10 @@ func loadData(tb testing.TB, name string, newLineBytes []byte) []byte {
 	}()
 	s := bufio.NewScanner(f)
 	var v []byte
-	nl := false
 	for s.Scan() {
 		b := s.Bytes()
-		if nl {
-			v = append(v, newLineBytes...)
-		} else {
-			nl = true
-		}
 		v = append(v, b...)
+		v = append(v, newLineBytes...)
 	}
 	if err := s.Err(); err != nil {
 		tb.Fatal(err)

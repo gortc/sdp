@@ -333,7 +333,7 @@ func TestDecoder_Errors(t *testing.T) {
 	)
 	for _, name := range shouldFail {
 		t.Run(name, func(t *testing.T) {
-			b := loadData(t, name, testNL)
+			b := loadData(t, name, testCRNL)
 			s, err = DecodeSession(b, s)
 			if err != nil {
 				t.Fatalf("err: %s", err)

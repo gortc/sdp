@@ -3,6 +3,7 @@ package sdp
 import (
 	"fmt"
 	"net"
+	"strings"
 	"testing"
 	"time"
 )
@@ -109,7 +110,9 @@ m=video 51372 RTP/AVP 99
 i=videotitle
 b=AS:66781
 k=prompt
-a=rtpmap:99 h263-1998/90000`
+a=rtpmap:99 h263-1998/90000
+`
+	result = strings.Replace(result, "\n", "\r\n", -1)
 	s := make(Session, 0, 100)
 	s = m.Append(s)
 	buf := make([]byte, 0, 1024)

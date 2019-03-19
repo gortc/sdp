@@ -19,11 +19,11 @@ func shouldDecode(tb testing.TB, s Session, name string) {
 		fmt.Println(string(buf))
 		tb.Errorf("not equal")
 	}
-	newSesssion, err := DecodeSession(buf, nil)
+	newSession, err := DecodeSession(buf, nil)
 	if err != nil {
 		tb.Errorf("decode error: %v", err)
 	}
-	if !newSesssion.Equal(s) {
+	if !newSession.Equal(s) {
 		tb.Error("sessions does not equal")
 	}
 }

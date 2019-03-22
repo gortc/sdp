@@ -5,12 +5,13 @@ import (
 	"time"
 )
 
+// Attribute represents key:value pair.
 type Attribute struct {
 	Key   string
 	Value string
 }
 
-// Attributes is set of k:v.
+// Attributes is list of k:v.
 type Attributes []Attribute
 
 // Value returns value of first attribute.

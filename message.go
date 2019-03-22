@@ -5,25 +5,43 @@ import (
 	"time"
 )
 
+type Attribute struct {
+	Key   string
+	Value string
+}
+
 // Attributes is set of k:v.
-type Attributes map[string][]string
+type Attributes []Attribute
 
 // Value returns value of first attribute.
 func (a Attributes) Value(attribute string) string {
-	if len(a[attribute]) == 0 {
-		return blank
+	for _, v := range a {
+		if v.Key == attribute {
+			return v.Value
+		}
 	}
-	return a[attribute][0]
+	return blank
 }
 
 // Values returns list of values associated to attribute.
 func (a Attributes) Values(attribute string) []string {
-	return a[attribute]
+	var values []string
+	for _, v := range a {
+		if v.Key == attribute {
+			values = append(values, v.Value)
+		}
+	}
+	return values
 }
 
 // Flag returns true if set.
 func (a Attributes) Flag(flag string) bool {
-	return len(a[flag]) != 0
+	for _, v := range a {
+		if v.Key == flag {
+			return true
+		}
+	}
+	return false
 }
 
 // Message is top level abstraction.

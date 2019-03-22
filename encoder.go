@@ -1,13 +1,11 @@
 package sdp
 
 func (s Session) appendAttributes(attrs Attributes) Session {
-	for k, v := range attrs {
-		for _, a := range v {
-			if a == "" {
-				s = s.AddFlag(k)
-			} else {
-				s = s.AddAttribute(k, a)
-			}
+	for _, v := range attrs {
+		if v.Value == blank {
+			s = s.AddFlag(v.Key)
+		} else {
+			s = s.AddAttribute(v.Key, v.Value)
 		}
 	}
 	return s

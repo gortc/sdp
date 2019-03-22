@@ -91,7 +91,10 @@ pkg github.com/gortc/sdp, method (Session) AddVersion(int) Session
 pkg github.com/gortc/sdp, method (Session) AppendTo([]uint8) []uint8
 pkg github.com/gortc/sdp, method (Session) Equal(Session) bool
 pkg github.com/gortc/sdp, method (Type) String() string
-pkg github.com/gortc/sdp, type Attributes map[string][]string
+pkg github.com/gortc/sdp, type Attribute struct
+pkg github.com/gortc/sdp, type Attribute struct, Key string
+pkg github.com/gortc/sdp, type Attribute struct, Value string
+pkg github.com/gortc/sdp, type Attributes []Attribute
 pkg github.com/gortc/sdp, type BandwidthType string
 pkg github.com/gortc/sdp, type Bandwidths map[BandwidthType]int
 pkg github.com/gortc/sdp, type ConnectionData struct

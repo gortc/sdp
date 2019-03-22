@@ -298,14 +298,7 @@ func (d *Decoder) decodeVersion(m *Message) error {
 }
 
 func addAttribute(a Attributes, k, v string) Attributes {
-	if a == nil {
-		a = make(Attributes)
-	}
-	if v == "" {
-		v = blank
-	}
-	a[k] = append(a[k], v)
-	return a
+	return append(a, Attribute{Key: k, Value: v})
 }
 
 func (d *Decoder) decodeAttribute(m *Message) error {

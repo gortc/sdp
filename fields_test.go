@@ -93,7 +93,8 @@ func TestSession_AddAttribute(t *testing.T) {
 func TestSession_AddBandwidth(t *testing.T) {
 	s := new(Session).
 		AddBandwidth(BandwidthConferenceTotal, 154798).
-		AddBandwidth(BandwidthApplicationSpecific, 66781)
+		AddBandwidth(BandwidthApplicationSpecific, 66781).
+		AddBandwidth(BandwidthApplicationSpecificTransportIndependent, 96000)
 	shouldDecodeExpS(t, s, "bandwidth")
 }
 

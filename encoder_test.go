@@ -17,6 +17,9 @@ func TestMessage_Append(t *testing.T) {
 			Formats:  []string{"0"},
 			Protocol: "RTP/AVP",
 		},
+		Bandwidths: Bandwidths{
+			BandwidthApplicationSpecificTransportIndependent: 96000,
+		},
 		Connection: ConnectionData{
 			NetworkType: "IN",
 			AddressType: "IP4",
@@ -106,6 +109,7 @@ a=recvonly
 m=audio 49170 RTP/AVP 0
 i=audiotitle
 c=IN IP4 224.2.1.1/127
+b=TIAS:96000
 m=video 51372 RTP/AVP 99
 i=videotitle
 b=AS:66781

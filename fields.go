@@ -384,6 +384,8 @@ type BandwidthType string
 const (
 	BandwidthConferenceTotal     BandwidthType = "CT"
 	BandwidthApplicationSpecific BandwidthType = "AS"
+	// defined in RFC 3890
+	BandwidthApplicationSpecificTransportIndependent BandwidthType = "TIAS"
 )
 
 // AddBandwidth appends Bandwidth field to Session.

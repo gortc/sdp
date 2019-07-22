@@ -1,6 +1,6 @@
 version: build-{build}.{branch}
 
-clone_folder: C:\gopath\src\github.com\gortc\sdp
+clone_folder: c:\gortc\stun
 shallow_clone: true # for startup speed
 
 environment:

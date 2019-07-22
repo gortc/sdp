@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gortc/sdp"
+	"gortc.io/sdp"
 )
 
 func main() {

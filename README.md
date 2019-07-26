@@ -1,11 +1,7 @@
-[![Build Status](https://travis-ci.com/gortc/sdp.svg?branch=master)](https://travis-ci.com/gortc/sdp)
 [![Master status](https://tc.gortc.io/app/rest/builds/buildType:(id:sdp_MasterStatus)/statusIcon.svg)](https://tc.gortc.io/project.html?projectId=sdp&tab=projectOverview&guest=1)
-[![Build status](https://ci.appveyor.com/api/projects/status/gcxr3fq9ebadmu9b?svg=true)](https://ci.appveyor.com/project/ernado/sdp)
-[![GoDoc](https://godoc.org/github.com/gortc/sdp?status.svg)](https://godoc.org/github.com/gortc/sdp)
 [![codecov](https://codecov.io/gh/gortc/sdp/branch/master/graph/badge.svg)](https://codecov.io/gh/gortc/sdp)
-[![stability-beta](https://img.shields.io/badge/stability-beta-33bbff.svg)](https://github.com/mkenney/software-guides/blob/master/STABILITY-BADGES.md#beta)
-[![Go Report Card](https://goreportcard.com/badge/github.com/gortc/sdp)](https://goreportcard.com/report/github.com/gortc/sdp)
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgortc%2Fsdp.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgortc%2Fsdp?ref=badge_shield)
+[![GoDoc](https://godoc.org/gortc.io/sdp?status.svg)](https://godoc.org/gortc.io/gortc/sdp)
+
 
 # SDP
 Package sdp implements SDP: Session Description Protocol [[RFC4566](https://tools.ietf.org/html/rfc4566)].
@@ -43,11 +39,11 @@ Encode:
 package main
 
 import (
+	"fmt"
 	"net"
 	"time"
-	"fmt"
-
-	"github.com/gortc/sdp"
+	
+	"gortc.io/sdp"
 )
 
 func main()  {
@@ -139,7 +135,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/gortc/sdp"
+	"gortc.io/sdp"
 )
 
 func main() {
@@ -184,7 +180,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/gortc/sdp"
+	"gortc.io/sdp"
 )
 
 func main() {
@@ -268,6 +264,10 @@ BenchmarkDecode-12                      100000000     13.10 ns/op        0 B/op 
 BenchmarkDecodeSession-12                 5000000    234.00 ns/op        0 B/op    0 allocs/op
 ok  	github.com/gortc/sdp	16.820s
 ```
+
+## Build status
+[![Build Status](https://travis-ci.com/gortc/sdp.svg?branch=master)](https://travis-ci.com/gortc/sdp)
+[![Build status](https://ci.appveyor.com/api/projects/status/gcxr3fq9ebadmu9b?svg=true)](https://ci.appveyor.com/project/ernado/sdp)
 
 ## License
 [![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fgortc%2Fsdp.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fgortc%2Fsdp?ref=badge_large)

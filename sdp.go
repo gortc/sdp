@@ -1,5 +1,5 @@
 // Package sdp implements RFC 4566 SDP: Session Description Protocol.
-package sdp
+package sdp // import "gortc.io/sdp"
 
 import (
 	"bytes"

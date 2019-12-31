@@ -1,6 +1,6 @@
 [![Master status](https://tc.gortc.io/app/rest/builds/buildType:(id:sdp_MasterStatus)/statusIcon.svg)](https://tc.gortc.io/project.html?projectId=sdp&tab=projectOverview&guest=1)
 [![codecov](https://codecov.io/gh/gortc/sdp/branch/master/graph/badge.svg)](https://codecov.io/gh/gortc/sdp)
-[![GoDoc](https://godoc.org/gortc.io/sdp?status.svg)](https://godoc.org/gortc.io/gortc/sdp)
+[![GoDoc](https://godoc.org/gortc.io/sdp?status.svg)](https://godoc.org/gortc.io/sdp)
 
 
 # SDP

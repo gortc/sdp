@@ -387,6 +387,7 @@ func isIPv4(ip net.IP) bool {
 	return ip.To4() != nil
 }
 
+//nolint:gocognit
 func (d *Decoder) decodeConnectionData(m *Message) error {
 	// TODO: simplify.
 	// c=<nettype> <addrtype> <connection-address>

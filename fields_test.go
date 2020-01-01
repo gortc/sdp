@@ -302,7 +302,6 @@ func BenchmarkSession_EX1(b *testing.B) {
 		s = s.AddAttribute("rtpmap", "99", "h263-1998/90000")
 		s = s.reset()
 	}
-
 }
 
 func TestNTP(t *testing.T) {

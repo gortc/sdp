@@ -42,15 +42,6 @@ issues:
       linters:
         - gocyclo
 
-    # Exclude some linters from running on tests files.
-    - path: _test\.go
-      linters:
-        - gocyclo
-        - errcheck
-        - dupl
-        - gosec
-        - goconst
-
     # Ease some gocritic warnings on test files.
     - path: _test\.go
       text: "(unnamedResult|exitAfterDefer|unlambda)"
@@ -77,12 +68,59 @@ issues:
       linters:
         - gocritic
 
+    # Disable linters that are annoying in tests.
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - funlen
+        - goconst
+        - gocognit
+        - scopelint
+    # Ignore shadowing of err.
+    - linters: [govet]
+      text: 'declaration of "err"'
+    # Ignore linters in main packages.
+    - path: main\.go
+      linters: [gochecknoglobals, goconst, funlen, gocognit, gocyclo]
+
+
 linters:
-  enable-all: true
-  disable:
-    - prealloc
-    - gochecknoglobals
+  disable-all: true
+  enable:
+    - deadcode
+    - depguard
+    - dogsled
+    - dupl
+    - errcheck
+    - gochecknoinits
+    - goconst
+    - gocritic
+    - gocyclo
+    - gofmt
+    - goimports
+    - golint
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - interfacer
+    - lll
+    - misspell
+    - nakedret
     - scopelint
+    - staticcheck
+    - structcheck
+    - stylecheck
+    - typecheck
+    - unconvert
+    - unparam
+    - unused
+    - varcheck
+    - whitespace
+    - gocognit
 
 run:
   skip-dirs:

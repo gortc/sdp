@@ -278,3 +278,17 @@ func DecodeSession(b []byte, s Session) (Session, error) {
 	}
 	return s, err
 }
+
+// Decode decodes b as SDP message, returning error if any.
+func Decode(b []byte) (*Message, error) {
+	s, err := DecodeSession(b, nil)
+	if err != nil {
+		return nil, err
+	}
+	m := new(Message)
+	d := NewDecoder(s)
+	if err := d.Decode(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}

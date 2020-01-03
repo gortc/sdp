@@ -305,3 +305,33 @@ func TestDecodeError_Error(t *testing.T) {
 		t.Error("bad decode error description")
 	}
 }
+func TestDecode(t *testing.T) {
+	t.Run("Ok", func(t *testing.T) {
+		b := loadData(t, "sdp_session_ex_full", testNL)
+		m, err := Decode(b)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if m == nil {
+			t.Fatal("nil result")
+		}
+	})
+	t.Run("Nil", func(t *testing.T) {
+		m, err := Decode(nil)
+		if err == nil {
+			t.Fatal("no error")
+		}
+		if m != nil {
+			t.Fatal("non-nil m")
+		}
+	})
+	t.Run("Bad", func(t *testing.T) {
+		m, err := Decode([]byte(`<bad<`))
+		if err == nil {
+			t.Fatal("no error")
+		}
+		if m != nil {
+			t.Fatal("non-nil m")
+		}
+	})
+}

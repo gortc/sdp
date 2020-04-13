@@ -94,7 +94,9 @@ func TestSession_AddBandwidth(t *testing.T) {
 	s := new(Session).
 		AddBandwidth(BandwidthConferenceTotal, 154798).
 		AddBandwidth(BandwidthApplicationSpecific, 66781).
-		AddBandwidth(BandwidthApplicationSpecificTransportIndependent, 96000)
+		AddBandwidth(BandwidthApplicationSpecificTransportIndependent, 96000).
+		AddBandwidth(BandwidthSenders, 800).
+		AddBandwidth(BandwidthReceivers, 2400)
 	shouldDecodeExpS(t, s, "bandwidth")
 }
 

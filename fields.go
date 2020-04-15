@@ -23,6 +23,11 @@ func appendInt(v []byte, i int) []byte {
 	return append(v, strconv.Itoa(i)...)
 }
 
+func appendInt64(v []byte, i int64) []byte {
+	// ALLOCATIONS: suboptimal.
+	return append(v, strconv.FormatInt(i, 10)...)
+}
+
 // AppendUint appends n to dst and returns the extended dst.
 func appendUint(dst []byte, n int) []byte {
 	if n < 0 {
@@ -264,8 +269,8 @@ func (c ConnectionData) appendAddress(v []byte) []byte {
 // See https://tools.ietf.org/html/rfc4566#section-5.2.
 type Origin struct {
 	Username       string // <username>
-	SessionID      int    // <sess-id>
-	SessionVersion int    // <sess-version>
+	SessionID      int64  // <sess-id>
+	SessionVersion int64  // <sess-version>
 	NetworkType    string // <nettype>
 	AddressType    string // <addrtype>
 	Address        string // <unicast-address>
@@ -306,8 +311,8 @@ func (o *Origin) Equal(b Origin) bool {
 func (s Session) AddOrigin(o Origin) Session {
 	v := make([]byte, 0, 2048)
 	v = appendSpace(append(v, o.Username...))
-	v = appendSpace(appendInt(v, o.SessionID))
-	v = appendSpace(appendInt(v, o.SessionVersion))
+	v = appendSpace(appendInt64(v, o.SessionID))
+	v = appendSpace(appendInt64(v, o.SessionVersion))
 	v = appendSpace(append(v, o.getNetworkType()...))
 	v = appendSpace(append(v, o.getAddressType()...))
 	v = append(v, o.Address...)

@@ -616,6 +616,12 @@ func decodeInt(v []byte, i *int) error {
 	return err
 }
 
+func decodeInt64(v []byte, i *int64) error {
+	var err error
+	*i, err = strconv.ParseInt(b2s(v), 10, 64)
+	return err
+}
+
 func (d *Decoder) subfields() ([][]byte, error) {
 	n := bytes.Count(d.v, []byte{fieldsDelimiter})
 	result := make([][]byte, n+1)
@@ -659,10 +665,10 @@ func (d *Decoder) decodeOrigin(m *Message) error {
 	}
 	o := m.Origin
 	decodeString(p[0], &o.Username)
-	if err = decodeInt(p[1], &o.SessionID); err != nil {
+	if err = decodeInt64(p[1], &o.SessionID); err != nil {
 		return errors.Wrap(err, "failed to decode sess-id")
 	}
-	if err = decodeInt(p[2], &o.SessionVersion); err != nil {
+	if err = decodeInt64(p[2], &o.SessionVersion); err != nil {
 		return errors.Wrap(err, "failed to decode sess-version")
 	}
 	decodeString(p[3], &o.NetworkType)

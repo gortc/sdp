@@ -10,8 +10,6 @@ github.com/knq/sysutil v0.0.0-20180306023629-0218e141a794 h1:hgWKTlyruPI7k8W+0Fm
 github.com/knq/sysutil v0.0.0-20180306023629-0218e141a794/go.mod h1:BjPj+aVjl9FW/cCGiF3nGh5v+9Gd3VCgBQbod/GlMaQ=
 github.com/mailru/easyjson v0.0.0-20180606163543-3fdea8d05856 h1:hOnidOuIWNsFRPcxxStGeN3NNm4n4+w6KJ9cVJIh70o=
 github.com/mailru/easyjson v0.0.0-20180606163543-3fdea8d05856/go.mod h1:C1wdFJiN94OJF2b5HbByQZoLdCWB1Yqtg26g4irojpc=
-github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=
-github.com/pkg/errors v0.8.0/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pkg/errors v0.9.1 h1:FEBLx1zS214owpjy7qsBeixbURkuhQAwrK5UwLGTwt4=
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 golang.org/x/image v0.0.0-20180708004352-c73c2afc3b81 h1:00VmoueYNlNz/aHIilyyQz/MHSqGoWJzpFv/HW8xpzI=

@@ -4,7 +4,7 @@ go 1.12
 
 require (
 	github.com/chromedp/chromedp v0.1.2
-	gortc.io/sdp v0.0.0
+	gortc.io/sdp v0.18.2
 )
 
 replace gortc.io/sdp v0.0.0 => ../

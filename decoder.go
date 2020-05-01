@@ -503,7 +503,7 @@ func (d *Decoder) decodeConnectionData(m *Message) error {
 		if isV4 {
 			switch d.section {
 			case sectionMedia:
-				m.Connection.TTL, err = decodeByte(first)
+				d.m.Connection.TTL, err = decodeByte(first)
 			case sectionSession:
 				m.Connection.TTL, err = decodeByte(first)
 			}
